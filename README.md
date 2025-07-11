@@ -7,4 +7,4 @@ Allows you to load RAGE compiled scripts (`.sco` files) for Grand Theft Auto V E
 - Place both files in the game directory where `GTA5_Enhanced.exe` is located.
 - Create a folder named `SCO` in the game directory where `GTA5_Enhanced.exe` is located.
 - Place your `.sco` scripts inside the newly created `SCO` folder.
-- Launch the game. Make sure BattlEye is disabled.
+- Launch the game. Make sure BattlEye is disabled. You can press the F5 key in-game to reload all scripts.
