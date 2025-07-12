@@ -1,16 +1,26 @@
-#include "Memory.hpp"
+#include "Hooking.hpp"
 #include "Engine.hpp"
 #include <thread>
 
 using RegisterNativeCommand = void (*)(PVOID table, rage::scrNativeHash hash, rage::scrNativeHandler handler);
 using CreateScriptThread    = std::uint32_t(*)(const char* path, PVOID args, std::uint32_t argCount, std::uint32_t stackSize);
+using StartNewGtaThread     = std::uint32_t(*)(std::uint32_t hash, PVOID args, std::uint32_t argCount, std::uint32_t stackSize);
 
 static PVOID nativeRegistrationTable                  = nullptr;
 static RegisterNativeCommand registerNativeCommand    = nullptr;
 static CreateScriptThread createScriptThread          = nullptr;
+static StartNewGtaThread startNewGtaThread            = nullptr;
+static PVOID createScriptThreadCaller                 = nullptr; // This is different than the one we're calling
 static rage::atArray<rage::scrThread*>* scriptThreads = nullptr;
 
+static CallHook createScriptThreadHook = {};
+static const char* currentScriptPath   = nullptr;
 static std::vector<std::uint32_t> scriptThreadIds;
+
+std::uint32_t CreateScriptThreadHook(std::uint64_t hash, PVOID args, std::uint32_t argCount, std::uint32_t stackSize)
+{
+	return createScriptThread(currentScriptPath, args, argCount, stackSize);
+}
 
 void NativeCommandPatchMemory(rage::scrNativeCallContext* ctx)
 {
@@ -19,19 +29,19 @@ void NativeCommandPatchMemory(rage::scrNativeCallContext* ctx)
 	auto value   = ctx->GetArg<int*>(2);
 	auto size    = ctx->GetArg<int>(3);
 
+	value += 2; // *(_QWORD *)args + 8i64
+
 	if (auto addr = Memory::ScanPattern(pattern))
 	{
-		auto loc = addr->Add(offset);
+		auto loc = addr->Add(offset).As<PVOID>();
 
 		DWORD oldProtect;
-		VirtualProtect(loc.As<void*>(), size, PAGE_EXECUTE_READWRITE, &oldProtect);
+		DWORD temp;
+		VirtualProtect(loc, size, PAGE_EXECUTE_READWRITE, &oldProtect);
 
-		for (int i = 0; i < size; i++)
-		{
-			*loc.Add(i).As<std::uint8_t*>() = value[i];
-		}
+		std::memcpy(loc, value, size);
 
-		VirtualProtect(loc.As<void*>(), size, oldProtect, &oldProtect);
+		VirtualProtect(loc, size, oldProtect, &temp);
 	}
 }
 
@@ -59,11 +69,27 @@ void LoadAllScripts()
 
 	do
 	{
-		auto fullPath = std::string("SCO\\") + findData.cFileName;
+		auto fullPath     = std::string("SCO\\") + findData.cFileName;
+		currentScriptPath = fullPath.c_str();
+
+		if (!createScriptThreadHook)
+		{
+			createScriptThreadHook = CallSiteHook::AddHook(createScriptThreadCaller, reinterpret_cast<void*>(CreateScriptThreadHook));
+		}
+		createScriptThreadHook->Enable();
 
 		// We don't need to create a script program as createScriptThread will handle it for us
-		auto id = createScriptThread(fullPath.c_str(), nullptr, 0, 5050); // TO-DO: Add custom arg and stack size support
-		scriptThreadIds.push_back(id);
+		if (auto id = startNewGtaThread(0x0000, nullptr, 0, 5050)) // TO-DO: Add custom arg and stack size support
+		{
+			scriptThreadIds.push_back(id);
+		}
+
+		if (createScriptThreadHook)
+		{
+			createScriptThreadHook->Disable();
+		}
+
+		currentScriptPath = nullptr;
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	} while (FindNextFileA(hFind, &findData));
@@ -73,7 +99,7 @@ void LoadAllScripts()
 
 void ReloadAllScripts()
 {
-	for (std::uint32_t id : scriptThreadIds)
+	for (auto id : scriptThreadIds)
 	{
 		if (auto thread = rage::FindScriptThreadById(scriptThreads, id))
 		{
@@ -102,13 +128,23 @@ DWORD Main(PVOID)
 		createScriptThread = addr->Sub(0xC).As<CreateScriptThread>();
 	}
 
+	if (auto addr = Memory::ScanPattern("56 57 48 83 EC 28 48 89 CF E8 ? ? ? ? 89 C6 89 C1"))
+	{
+		startNewGtaThread = addr->As<StartNewGtaThread>();
+	}
+
+	if (auto addr = Memory::ScanPattern("E8 ? ? ? ? 89 C6 89 C1 E8 ? ? ? ? 48 85 C0"))
+	{
+		createScriptThreadCaller = addr->As<PVOID>();
+	}
+
 	if (auto addr = Memory::ScanPattern("48 8B 05 ? ? ? ? 48 89 34 F8 48 FF C7 48 39 FB 75 97"))
 	{
 		scriptThreads = addr->Add(3).Rip().As<rage::atArray<rage::scrThread*>*>();
 	}
 
-	if (!nativeRegistrationTable || !registerNativeCommand || !createScriptThread || !scriptThreads)
-		goto exit;
+	if (!nativeRegistrationTable || !registerNativeCommand || !createScriptThread || !startNewGtaThread || !createScriptThreadCaller || !scriptThreads)
+		return EXIT_FAILURE;
 
 	// Wait until main_persistent loads
 	while (!rage::FindScriptThread(scriptThreads, 0x5700179C))
@@ -127,7 +163,6 @@ DWORD Main(PVOID)
 		std::this_thread::yield();
 	}
 
-exit:
 	return EXIT_SUCCESS;
 }
 

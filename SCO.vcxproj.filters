@@ -4,9 +4,11 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Hooking.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Memory.hpp" />
     <ClInclude Include="Engine.hpp" />
+    <ClInclude Include="Hooking.hpp" />
   </ItemGroup>
 </Project>
