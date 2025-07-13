@@ -22,26 +22,42 @@ std::uint32_t CreateScriptThreadHook(std::uint64_t hash, PVOID args, std::uint32
 	return createScriptThread(currentScriptPath, args, argCount, stackSize);
 }
 
-void NativeCommandPatchMemory(rage::scrNativeCallContext* ctx)
+void NativeCommandWriteMemory(rage::scrNativeCallContext* ctx)
 {
 	auto pattern = ctx->GetArg<const char*>(0);
 	auto offset  = ctx->GetArg<int>(1);
-	auto value   = ctx->GetArg<int*>(2);
-	auto size    = ctx->GetArg<int>(3);
+	auto rip     = ctx->GetArg<int>(2);
+	auto patch   = ctx->GetArg<std::uint64_t*>(3);
+	auto protect = ctx->GetArg<int>(4);
 
-	value += 2; // *(_QWORD *)args + 8i64
+	auto count = static_cast<int>(patch[0]);
+	auto items = patch + 1;
+
+	std::vector<std::uint8_t> data;
+	for (int i = 0; i < count; i++)
+	{
+		data.push_back(static_cast<std::uint8_t>(items[i]));
+	}
 
 	if (auto addr = Memory::ScanPattern(pattern))
 	{
-		auto loc = addr->Add(offset).As<PVOID>();
+		auto loc = addr->Add(offset);
+		if (rip)
+			loc = loc.Rip();
 
-		DWORD oldProtect;
-		DWORD temp;
-		VirtualProtect(loc, size, PAGE_EXECUTE_READWRITE, &oldProtect);
+		auto ptr = loc.As<std::uint8_t*>();
 
-		std::memcpy(loc, value, size);
-
-		VirtualProtect(loc, size, oldProtect, &temp);
+		if (protect)
+		{
+			DWORD oldProtect, temp;
+			VirtualProtect(ptr, count, PAGE_EXECUTE_READWRITE, &oldProtect);
+			std::memcpy(ptr, data.data(), count);
+			VirtualProtect(ptr, count, oldProtect, &temp);
+		}
+		else
+		{
+			std::memcpy(ptr, data.data(), count);
+		}
 	}
 }
 
@@ -52,12 +68,12 @@ void RegisterCustomNatives()
 		I use the joaat hash of the native's name for the lower 32 bits, and fill the rest randomly
 
 		Example usage of this native (model spawn bypass):
-		NATIVE PROC PATCH_MEMORY(STRING pattern, INT offset, INT& patch[], INT size) = "0x59C783B684653AC8"	
+		NATIVE PROC WRITE_MEMORY(STRING pattern, INT offset, BOOL rip, INT& patch[], BOOL protect) = "0xEEE74A05DE4C2A07"
 		INT patch[1]
 		patch[0] = 235 // 0xEB
-		PATCH_MEMORY("48 8B 06 48 89 F1 FF 50 ? 84 C0 75 ? 31 F6 48 89 F0", 11, patch, 1)
+		WRITE_MEMORY("48 8B 06 48 89 F1 FF 50 ? 84 C0 75 ? 31 F6 48 89 F0", 11, FALSE, patch, TRUE)
 	*/
-	registerNativeCommand(nativeRegistrationTable, 0x59C783B684653AC8, NativeCommandPatchMemory);
+	registerNativeCommand(nativeRegistrationTable, 0xEEE74A05DE4C2A07, NativeCommandWriteMemory);
 }
 
 void LoadAllScripts()
@@ -74,7 +90,7 @@ void LoadAllScripts()
 
 		if (!createScriptThreadHook)
 		{
-			createScriptThreadHook = CallSiteHook::AddHook(createScriptThreadCaller, reinterpret_cast<void*>(CreateScriptThreadHook));
+			createScriptThreadHook = CallSiteHook::AddHook(createScriptThreadCaller, reinterpret_cast<PVOID>(CreateScriptThreadHook));
 		}
 		createScriptThreadHook->Enable();
 
@@ -146,8 +162,8 @@ DWORD Main(PVOID)
 	if (!nativeRegistrationTable || !registerNativeCommand || !createScriptThread || !startNewGtaThread || !createScriptThreadCaller || !scriptThreads)
 		return EXIT_FAILURE;
 
-	// Wait until main_persistent loads
-	while (!rage::FindScriptThread(scriptThreads, 0x5700179C))
+	// Wait until startup loads
+	while (!rage::FindScriptThread(scriptThreads, 0x41D6F794))
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	RegisterCustomNatives();
