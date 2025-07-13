@@ -1,6 +1,7 @@
 #include "Hooking.hpp"
 #include "Engine.hpp"
 #include <thread>
+#include <unordered_map>
 
 using RegisterNativeCommand = void (*)(PVOID table, rage::scrNativeHash hash, rage::scrNativeHandler handler);
 using CreateScriptThread    = std::uint32_t(*)(const char* path, PVOID args, std::uint32_t argCount, std::uint32_t stackSize);
@@ -24,28 +25,42 @@ std::uint32_t CreateScriptThreadHook(std::uint64_t hash, PVOID args, std::uint32
 
 void NativeCommandWriteMemory(rage::scrNativeCallContext* ctx)
 {
-	auto pattern = ctx->GetArg<const char*>(0);
-	auto offset  = ctx->GetArg<int>(1);
-	auto rip     = ctx->GetArg<int>(2);
-	auto patch   = ctx->GetArg<std::uint64_t*>(3);
-	auto protect = ctx->GetArg<int>(4);
+	static std::unordered_map<std::string, std::optional<Memory>> cachedResults;
 
-	auto count = static_cast<int>(patch[0]);
-	auto items = patch + 1;
+	auto name    = ctx->GetArg<const char*>(0);
+	auto pattern = ctx->GetArg<const char*>(1);
+	auto offset  = ctx->GetArg<int>(2);
+	auto rip     = ctx->GetArg<int>(3);
+	auto patch   = ctx->GetArg<std::uint64_t*>(4);
+	auto protect = ctx->GetArg<int>(5);
 
-	std::vector<std::uint8_t> data;
-	for (int i = 0; i < count; i++)
+	std::optional<Memory> addr = std::nullopt;
+	if (cachedResults.contains(name))
 	{
-		data.push_back(static_cast<std::uint8_t>(items[i]));
+		addr = cachedResults[name];
+	}
+	else
+	{
+		addr = Memory::ScanPattern(pattern);
+		cachedResults[name] = addr;
 	}
 
-	if (auto addr = Memory::ScanPattern(pattern))
+	if (addr)
 	{
 		auto loc = addr->Add(offset);
 		if (rip)
 			loc = loc.Rip();
 
 		auto ptr = loc.As<std::uint8_t*>();
+
+		auto count = static_cast<int>(patch[0]);
+		auto items = patch + 1;
+
+		std::vector<std::uint8_t> data;
+		for (int i = 0; i < count; i++)
+		{
+			data.push_back(static_cast<std::uint8_t>(items[i]));
+		}
 
 		if (protect)
 		{
@@ -68,10 +83,10 @@ void RegisterCustomNatives()
 		I use the joaat hash of the native's name for the lower 32 bits, and fill the rest randomly
 
 		Example usage of this native (model spawn bypass):
-		NATIVE PROC WRITE_MEMORY(STRING pattern, INT offset, BOOL rip, INT& patch[], BOOL protect) = "0xEEE74A05DE4C2A07"
+		NATIVE PROC WRITE_MEMORY(STRING name, STRING pattern, INT offset, BOOL rip, INT& patch[], BOOL protect) = "0xEEE74A05DE4C2A07"
 		INT patch[1]
 		patch[0] = 235 // 0xEB
-		WRITE_MEMORY("48 8B 06 48 89 F1 FF 50 ? 84 C0 75 ? 31 F6 48 89 F0", 11, FALSE, patch, TRUE)
+		WRITE_MEMORY("ModelSpawnBypass", "48 8B 06 48 89 F1 FF 50 ? 84 C0 75 ? 31 F6 48 89 F0", 11, FALSE, patch, TRUE)
 	*/
 	registerNativeCommand(nativeRegistrationTable, 0xEEE74A05DE4C2A07, NativeCommandWriteMemory);
 }
