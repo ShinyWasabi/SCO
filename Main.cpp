@@ -17,6 +17,7 @@ static rage::atArray<rage::scrThread*>* scriptThreads = nullptr;
 static CallHook createScriptThreadHook = {};
 static const char* currentScriptPath   = nullptr;
 static std::vector<std::uint32_t> scriptThreadIds;
+static std::unordered_map<std::string, std::optional<Memory>> cachedResults;
 
 std::uint32_t CreateScriptThreadHook(std::uint64_t hash, PVOID args, std::uint32_t argCount, std::uint32_t stackSize)
 {
@@ -25,8 +26,6 @@ std::uint32_t CreateScriptThreadHook(std::uint64_t hash, PVOID args, std::uint32
 
 void NativeCommandWriteMemory(rage::scrNativeCallContext* ctx)
 {
-	static std::unordered_map<std::string, std::optional<Memory>> cachedResults;
-
 	auto name    = ctx->GetArg<const char*>(0);
 	auto pattern = ctx->GetArg<const char*>(1);
 	auto offset  = ctx->GetArg<int>(2);
@@ -76,19 +75,55 @@ void NativeCommandWriteMemory(rage::scrNativeCallContext* ctx)
 	}
 }
 
+void NativeCommandReadMemory(rage::scrNativeCallContext* ctx)
+{
+	auto name    = ctx->GetArg<const char*>(0);
+	auto pattern = ctx->GetArg<const char*>(1);
+	auto offset  = ctx->GetArg<int>(2);
+	auto rip     = ctx->GetArg<int>(3);
+
+	std::optional<Memory> addr = std::nullopt;
+	if (cachedResults.contains(name))
+	{
+		addr = cachedResults[name];
+	}
+	else
+	{
+		addr = Memory::ScanPattern(pattern);
+		cachedResults[name] = addr;
+	}
+
+	int retVal = 0;
+	if (addr)
+	{
+		auto loc = addr->Add(offset);
+		if (rip)
+			loc = loc.Rip();
+
+		retVal = loc.As<std::int32_t&>();
+	}
+
+	ctx->SetReturnValue<int>(static_cast<int>(retVal));
+}
+
 void RegisterCustomNatives()
 {
 	/*
 		The native hash can be anything as long as it's a full 64-bit number
 		I use the joaat hash of the native's name for the lower 32 bits, and fill the rest randomly
 
-		Example usage of this native (model spawn bypass):
+		Example writing/reading memory:
 		NATIVE PROC WRITE_MEMORY(STRING name, STRING pattern, INT offset, BOOL rip, INT& patch[], BOOL protect) = "0xEEE74A05DE4C2A07"
+		NATIVE FUNC INT READ_MEMORY(STRING name, STRING pattern, INT offset, BOOL rip) = "0x1E9F7F45D0E77AAC"
+
 		INT patch[1]
 		patch[0] = 235 // 0xEB
 		WRITE_MEMORY("ModelSpawnBypass", "48 8B 06 48 89 F1 FF 50 ? 84 C0 75 ? 31 F6 48 89 F0", 11, FALSE, patch, TRUE)
+
+		INT gameTimer = READ_MEMORY("GameTimer", "3B 2D ? ? ? ? 76 ? 89 D9", 2, TRUE)
 	*/
 	registerNativeCommand(nativeRegistrationTable, 0xEEE74A05DE4C2A07, NativeCommandWriteMemory);
+	registerNativeCommand(nativeRegistrationTable, 0x1E9F7F45D0E77AAC, NativeCommandReadMemory);
 }
 
 void LoadAllScripts()
