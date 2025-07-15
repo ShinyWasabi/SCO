@@ -33,6 +33,10 @@
     <ClInclude Include="src\util\Logger.hpp">
       <Filter>util</Filter>
     </ClInclude>
+    <ClInclude Include="src\util\SimpleIni.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Settings.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Common.cpp" />
@@ -45,5 +49,6 @@
       <Filter>rage</Filter>
     </ClCompile>
     <ClCompile Include="src\Loader.cpp" />
+    <ClCompile Include="src\Settings.cpp" />
   </ItemGroup>
 </Project>

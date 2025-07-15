@@ -11,20 +11,29 @@ namespace SCO::Loader
 
 	static std::uint32_t CreateScriptThreadHook(std::uint64_t hash, PVOID args, std::uint32_t argCount, std::uint32_t stackSize)
 	{
-		Logger::Log("Loading script from path {}.", currentScriptPath);
+		Logger::Log("Loading script from path '{}'.", currentScriptPath);
 		return g_Pointers.CreateScriptThread(currentScriptPath.c_str(), args, argCount, stackSize);
 	}
 
 	void LoadAllScripts()
 	{
-		WIN32_FIND_DATAA findData;
-		auto hFind = FindFirstFileA("SCO\\*.SCO", &findData);
-		if (hFind == INVALID_HANDLE_VALUE)
-			return;
+		auto scriptsFolder = std::filesystem::absolute(g_Variables.ScriptsFolder);
 
-		do
+		if (!std::filesystem::exists(scriptsFolder) || !std::filesystem::is_directory(scriptsFolder))
 		{
-			currentScriptPath = std::string("SCO\\") + findData.cFileName;
+			Logger::Log("Scripts folder is invalid: {}", scriptsFolder.string());
+			return;
+		}
+
+		for (const auto& entry : std::filesystem::directory_iterator(scriptsFolder))
+		{
+			if (!entry.is_regular_file() || (entry.path().extension().string() != ".SCO" && entry.path().extension().string() != ".sco"))
+			{
+				// Logger::Log("Skipped invalid file: {}", entry.path().string());
+				continue;
+			}
+
+			currentScriptPath = entry.path().string();
 
 			if (!createScriptThreadHook)
 			{
@@ -32,24 +41,18 @@ namespace SCO::Loader
 			}
 			createScriptThreadHook->Enable();
 
-			// We don't need to create a script program as createScriptThread will handle it for us
-			if (auto id = g_Pointers.StartNewGtaThread(0x0000, nullptr, 0, 5050)) // TO-DO: Add custom arg and stack size support
+			auto data = Settings::GetScriptData(entry.path().filename().string());
+			if (auto id = g_Pointers.StartNewGtaThread(0x0000, data.Args.data(), data.ArgCount, data.StackSize))
 			{
 				Logger::Log("Started new thread with ID {}.", id);
 				scriptThreadIds.push_back(id);
 			}
 
-			if (createScriptThreadHook)
-			{
-				createScriptThreadHook->Disable();
-			}
-
+			createScriptThreadHook->Disable();
 			currentScriptPath.clear();
 
 			std::this_thread::sleep_for(100ms);
-		} while (FindNextFileA(hFind, &findData));
-
-		FindClose(hFind);
+		}
 	}
 
 	void ReloadAllScripts()

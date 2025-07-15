@@ -1,0 +1,83 @@
+#include "Settings.hpp"
+#include "util/SimpleIni.h"
+
+namespace SCO
+{
+	static std::vector<std::uint64_t> ParseArgs(const std::string& str)
+	{
+		std::vector<std::uint64_t> args;
+		std::istringstream iss(str);
+		std::string token;
+
+		while (std::getline(iss, token, ','))
+		{
+			try
+			{
+				args.push_back(std::stoull(token));
+			}
+			catch (...)
+			{
+			}
+		}
+
+		return args;
+	}
+
+	void Settings::LoadImpl()
+	{
+		CSimpleIniA ini;
+		ini.SetUnicode();
+
+		ini.LoadFile("SCO.ini");
+
+		if (!ini.GetValue("Settings", "ScriptsFolder", nullptr))
+			ini.SetValue("Settings", "ScriptsFolder", ".");
+
+		if (!ini.GetValue("Settings", "ReloadKey", nullptr))
+			ini.SetLongValue("Settings", "ReloadKey", VK_F5);
+
+		ini.SaveFile("SCO.ini");
+
+		g_Variables.ScriptsFolder = ini.GetValue("Settings", "ScriptsFolder", ".");
+		g_Variables.ReloadKey = ini.GetLongValue("Settings", "ReloadKey", VK_F5);
+	}
+
+	void Settings::UpdateImpl()
+	{
+		const auto now = std::chrono::high_resolution_clock::now();
+		if (std::chrono::duration_cast<std::chrono::seconds>(now - m_LastUpdate) < 3s)
+			return;
+
+		m_LastUpdate = now;
+
+		Load();
+	}
+
+	Settings::ScriptData Settings::GetScriptDataImpl(const std::string& name)
+	{
+		CSimpleIniA ini;
+		ini.SetUnicode();
+
+		ini.LoadFile("SCO.ini");
+
+		if (!ini.GetValue(name.c_str(), "Args", nullptr))
+			ini.SetValue(name.c_str(), "Args", "0");
+
+		if (!ini.GetValue(name.c_str(), "ArgCount", nullptr))
+			ini.SetLongValue(name.c_str(), "ArgCount", 0);
+
+		if (!ini.GetValue(name.c_str(), "StackSize", nullptr))
+			ini.SetLongValue(name.c_str(), "StackSize", 1424);
+
+		ini.SaveFile("SCO.ini");
+
+		ScriptData data;
+		data.Args = ParseArgs(ini.GetValue(name.c_str(), "Args", "0"));
+		data.ArgCount = ini.GetLongValue(name.c_str(), "ArgCount", 0);
+		data.StackSize = ini.GetLongValue(name.c_str(), "StackSize", 1424);
+
+		Logger::Log("Loaded script data for '{}'. ArgCount={} StackSize={}", name, data.ArgCount, data.StackSize);
+
+		return data;
+	}
+}

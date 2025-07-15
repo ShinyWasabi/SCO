@@ -77,8 +77,10 @@
     <ClInclude Include="src\rage\scrNativeCallContext.hpp" />
     <ClInclude Include="src\rage\scrThread.hpp" />
     <ClInclude Include="src\rage\scrVector.hpp" />
+    <ClInclude Include="src\Settings.hpp" />
     <ClInclude Include="src\util\Joaat.hpp" />
     <ClInclude Include="src\util\Logger.hpp" />
+    <ClInclude Include="src\util\SimpleIni.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Common.cpp">
@@ -91,6 +93,7 @@
     <ClCompile Include="src\Natives.cpp" />
     <ClCompile Include="src\Pointers.cpp" />
     <ClCompile Include="src\rage\scrThread.cpp" />
+    <ClCompile Include="src\Settings.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

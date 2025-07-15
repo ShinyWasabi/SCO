@@ -32,7 +32,8 @@ namespace SCO
                 return;
 
             auto now = std::chrono::system_clock::now();
-            file << "[" << std::format("{0:%H:%M:%S}", now) << "] " << message << "\n";
+            auto local = std::chrono::zoned_time(std::chrono::current_zone(), now);
+            file << "[" << std::format("{0:%H:%M:%S}", local) << "] " << message << "\n";
             file.close();
         }
 

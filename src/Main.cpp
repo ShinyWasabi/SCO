@@ -8,7 +8,8 @@ namespace SCO
 {
 	static DWORD Main(PVOID)
 	{
-		Logger::Log("SCO Loaded.");
+		Settings::Load();
+		Logger::Log("Settings loaded. ScriptsFolder={} ReloadKey={}", g_Variables.ScriptsFolder, g_Variables.ReloadKey);
 
 		if (!g_Pointers.Init())
 		{
@@ -25,7 +26,9 @@ namespace SCO
 
 		while (true)
 		{
-			if (GetAsyncKeyState(VK_F5) & 1)
+			Settings::Update();
+
+			if (GetAsyncKeyState(g_Variables.ReloadKey) & 1)
 			{
 				Loader::ReloadAllScripts();
 			}

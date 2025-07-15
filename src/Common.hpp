@@ -19,6 +19,7 @@
 #include <unordered_set>
 
 #include "util/Logger.hpp"
+#include "Settings.hpp"
 
 namespace SCO
 {
