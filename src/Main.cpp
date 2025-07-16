@@ -1,7 +1,7 @@
-#include "Hooking.hpp"
 #include "Pointers.hpp"
 #include "Natives.hpp"
 #include "Loader.hpp"
+#include "util/Joaat.hpp"
 #include "rage/scrThread.hpp"
 
 namespace SCO

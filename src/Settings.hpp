@@ -18,6 +18,8 @@ namespace SCO
 			std::uint32_t StackSize = 1424;
 		};
 
+		Settings();
+
 		static void Load()
 		{
 			GetInstance().LoadImpl();
@@ -44,6 +46,7 @@ namespace SCO
 		void UpdateImpl();
 		ScriptData GetScriptDataImpl(const std::string& name);
 
+		std::string m_FileName;
 		std::chrono::time_point<std::chrono::steady_clock> m_LastUpdate;
 	};
 

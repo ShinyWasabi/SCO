@@ -19,4 +19,7 @@ StackSize = 1424
 ```
 You can edit these values as needed for your script. Use the `0,1,2,3` format to pass arguments.
 
+## Natives
+SCO registers additional natives that can be used in your scripts. See the documentation [here](https://github.com/ShinyWasabi/SCO/blob/main/NATIVES.md).
+
 An example script to test can be found [here](https://github.com/ShinyWasabi/SCO/releases/download/SCO/hello_world.sco).

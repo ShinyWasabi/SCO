@@ -41,7 +41,9 @@ namespace SCO::Loader
 			}
 			createScriptThreadHook->Enable();
 
-			auto data = Settings::GetScriptData(entry.path().filename().string());
+			auto name = entry.path().filename().string();
+			auto data = Settings::GetScriptData(name);
+			Logger::Log("Loaded script data for '{}'. ArgCount={} StackSize={}", name, data.ArgCount, data.StackSize);
 			if (auto id = g_Pointers.StartNewGtaThread(0x0000, data.Args.data(), data.ArgCount, data.StackSize))
 			{
 				Logger::Log("Started new thread with ID {}.", id);

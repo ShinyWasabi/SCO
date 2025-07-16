@@ -23,20 +23,34 @@ namespace SCO
 		return args;
 	}
 
+	Settings::Settings() :
+		m_FileName("SCO.ini")
+	{
+	}
+
 	void Settings::LoadImpl()
 	{
 		CSimpleIniA ini;
 		ini.SetUnicode();
 
-		ini.LoadFile("SCO.ini");
+		ini.LoadFile(m_FileName.c_str());
+
+		bool dirty = false;
 
 		if (!ini.GetValue("Settings", "ScriptsFolder", nullptr))
+		{
 			ini.SetValue("Settings", "ScriptsFolder", ".");
+			dirty = true;
+		}
 
 		if (!ini.GetValue("Settings", "ReloadKey", nullptr))
+		{
 			ini.SetLongValue("Settings", "ReloadKey", VK_F5);
+			dirty = true;
+		}
 
-		ini.SaveFile("SCO.ini");
+		if (dirty)
+			ini.SaveFile(m_FileName.c_str());
 
 		g_Variables.ScriptsFolder = ini.GetValue("Settings", "ScriptsFolder", ".");
 		g_Variables.ReloadKey = ini.GetLongValue("Settings", "ReloadKey", VK_F5);
@@ -58,25 +72,35 @@ namespace SCO
 		CSimpleIniA ini;
 		ini.SetUnicode();
 
-		ini.LoadFile("SCO.ini");
+		ini.LoadFile(m_FileName.c_str());
+
+		bool dirty = false;
 
 		if (!ini.GetValue(name.c_str(), "Args", nullptr))
+		{
 			ini.SetValue(name.c_str(), "Args", "0");
+			dirty = true;
+		}
 
 		if (!ini.GetValue(name.c_str(), "ArgCount", nullptr))
+		{
 			ini.SetLongValue(name.c_str(), "ArgCount", 0);
+			dirty = true;
+		}
 
 		if (!ini.GetValue(name.c_str(), "StackSize", nullptr))
+		{
 			ini.SetLongValue(name.c_str(), "StackSize", 1424);
+			dirty = true;
+		}
 
-		ini.SaveFile("SCO.ini");
+		if (dirty)
+			ini.SaveFile(m_FileName.c_str());
 
 		ScriptData data;
 		data.Args = ParseArgs(ini.GetValue(name.c_str(), "Args", "0"));
 		data.ArgCount = ini.GetLongValue(name.c_str(), "ArgCount", 0);
 		data.StackSize = ini.GetLongValue(name.c_str(), "StackSize", 1424);
-
-		Logger::Log("Loaded script data for '{}'. ArgCount={} StackSize={}", name, data.ArgCount, data.StackSize);
 
 		return data;
 	}
