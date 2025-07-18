@@ -1,10 +1,10 @@
 # SCOL
 Allows you to load RAGE compiled scripts (`.sco` files) for Grand Theft Auto V Enhanced. Strictly for educational purposes.
 
-An example script to test can be found [here](https://github.com/ShinyWasabi/SCOL/releases/download/SCOL/hello_world.sco).
+An example script to test can be found [here](https://github.com/ShinyWasabi/SCOL/releases/download/1.0/hello_world.sco).
 
 ## Installation
-- Download [SCOL.asi](https://github.com/ShinyWasabi/SCOL/releases/download/SCOL/SCOL.asi).
+- Download [SCOL.asi](https://github.com/ShinyWasabi/SCOL/releases/download/1.0/SCOL.asi).
 - Download [xinput1_4.dll](https://github.com/ThirteenAG/Ultimate-ASI-Loader/releases/download/x64-latest/xinput1_4-x64.zip).
 - Place both files in the game directory where `GTA5_Enhanced.exe` is located.
 - Launch the game. Make sure BattlEye is disabled.
