@@ -1,6 +1,6 @@
 #pragma once
 
-namespace SCO::Natives
+namespace SCOL::Natives
 {
 	void RegisterCustomNatives();
 }

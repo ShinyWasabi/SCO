@@ -1,7 +1,7 @@
 #pragma once
 #include "util/Joaat.hpp"
 
-namespace SCO
+namespace SCOL
 {
 	class Memory
 	{

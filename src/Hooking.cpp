@@ -1,6 +1,6 @@
 #include "Hooking.hpp"
 
-namespace SCO
+namespace SCOL
 {
 	CallHookMemory::CallHookMemory()
 	{

@@ -21,7 +21,7 @@
 #include "util/Logger.hpp"
 #include "Settings.hpp"
 
-namespace SCO
+namespace SCOL
 {
 	using namespace std::chrono_literals;
 }

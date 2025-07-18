@@ -1,6 +1,6 @@
 #pragma once
 
-namespace SCO::Loader
+namespace SCOL::Loader
 {
 	void LoadAllScripts();
 	void ReloadAllScripts();

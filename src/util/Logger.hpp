@@ -1,12 +1,12 @@
 #pragma once
 
-namespace SCO
+namespace SCOL
 {
     class Logger
     {
     public:
         Logger() :
-            m_FileName("SCO.log")
+            m_FileName("SCOL.log")
         {
             std::ofstream file(m_FileName, std::ofstream::out | std::ofstream::trunc);
             file.close();

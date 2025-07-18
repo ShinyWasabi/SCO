@@ -1,7 +1,7 @@
 #include "Settings.hpp"
 #include "util/SimpleIni.h"
 
-namespace SCO
+namespace SCOL
 {
 	static std::vector<std::uint64_t> ParseArgs(const std::string& str)
 	{
@@ -24,7 +24,7 @@ namespace SCO
 	}
 
 	Settings::Settings() :
-		m_FileName("SCO.ini")
+		m_FileName("SCOL.ini")
 	{
 	}
 

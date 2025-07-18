@@ -1,6 +1,6 @@
 #pragma once
 
-namespace SCO
+namespace SCOL
 {
 	class Settings
 	{

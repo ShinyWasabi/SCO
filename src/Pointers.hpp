@@ -8,7 +8,7 @@ namespace rage
 	class scrThread;
 }
 
-namespace SCO
+namespace SCOL
 {
 	namespace Functions
 	{

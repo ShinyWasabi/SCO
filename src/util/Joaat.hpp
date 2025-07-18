@@ -1,6 +1,6 @@
 #pragma once
 
-namespace SCO
+namespace SCOL
 {
 	using joaat_t = std::uint32_t;
 
@@ -28,13 +28,13 @@ namespace SCO
 	}
 };
 
-inline consteval SCO::joaat_t operator""_J(const char* s, std::size_t n)
+inline consteval SCOL::joaat_t operator""_J(const char* s, std::size_t n)
 {
-	SCO::joaat_t result = 0;
+	SCOL::joaat_t result = 0;
 
 	for (std::size_t i = 0; i < n; i++)
 	{
-		result += SCO::ToLower(s[i]);
+		result += SCOL::ToLower(s[i]);
 		result += (result << 10);
 		result ^= (result >> 6);
 	}

@@ -1,7 +1,7 @@
 #pragma once
 #include "Memory.hpp"
 
-namespace SCO
+namespace SCOL
 {
 	class CallHookMemory
 	{

@@ -1,7 +1,7 @@
 #include "Pointers.hpp"
 #include "Memory.hpp"
 
-namespace SCO
+namespace SCOL
 {
 	bool Pointers::Init()
 	{

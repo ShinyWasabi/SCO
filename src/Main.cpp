@@ -4,7 +4,7 @@
 #include "util/Joaat.hpp"
 #include "rage/scrThread.hpp"
 
-namespace SCO
+namespace SCOL
 {
 	static DWORD Main(PVOID)
 	{
@@ -13,7 +13,7 @@ namespace SCO
 
 		if (!g_Pointers.Init())
 		{
-			MessageBoxA(0, "Some patterns could not be found.", "SCO", MB_ICONERROR);
+			MessageBoxA(0, "Some patterns could not be found.", "SCOL", MB_ICONERROR);
 			return EXIT_FAILURE;
 		}
 
@@ -42,7 +42,7 @@ namespace SCO
 
 BOOL WINAPI DllMain(HINSTANCE dllInstance, DWORD reason, PVOID)
 {
-	using namespace SCO;
+	using namespace SCOL;
 
 	if (reason == DLL_PROCESS_ATTACH)
 	{

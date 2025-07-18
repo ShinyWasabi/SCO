@@ -1,6 +1,6 @@
 #include "Memory.hpp"
 
-namespace SCO
+namespace SCOL
 {
 	static std::optional<std::uint8_t> StrToHex(char const c)
 	{

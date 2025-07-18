@@ -3,7 +3,7 @@
 Writes the bytes in the patch array to the address found by pattern in `GTA5_Enhanced.exe`.
 
 - **Parameters:**
-  - `name (STRING)`: A Unique name for your pattern (used for caching).
+  - `name (STRING)`: A unique name for your pattern (used for caching).
   - `pattern (STRING)`: The IDA-style pattern to scan for within `GTA5_Enhanced.exe`.
   - `offset (INT)`: The amount to add/subtract from the found address.
   - `rip (BOOL)`: Whether to rip the found address.
@@ -22,7 +22,7 @@ WRITE_MEMORY("ModelSpawnBypass", "48 8B 06 48 89 F1 FF 50 ? 84 C0 75 ? 31 F6 48 
 Reads a 4-byte integer value from the address found by pattern in `GTA5_Enhanced.exe`.
 
 - **Parameters:**
-  - `name (STRING)`: Unique name of your pattern (used for caching).
+  - `name (STRING)`: A unique name for your pattern (used for caching).
   - `pattern (STRING)`: The IDA-style pattern to scan for within `GTA5_Enhanced.exe`.
   - `offset (INT)`: The amount to add/subtract from the found address.
   - `rip (BOOL)`: Whether to rip the found address.

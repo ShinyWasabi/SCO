@@ -6,7 +6,7 @@ namespace rage
 {
 	rage::scrThread* scrThread::FindScriptThread(std::uint32_t hash)
 	{
-		for (auto& thread : *SCO::g_Pointers.ScriptThreads)
+		for (auto& thread : *SCOL::g_Pointers.ScriptThreads)
 		{
 			if (thread && thread->m_Context.m_ThreadId && thread->m_ScriptHash == hash)
 			{
@@ -19,7 +19,7 @@ namespace rage
 
 	rage::scrThread* scrThread::FindScriptThreadById(std::uint32_t id)
 	{
-		for (auto& thread : *SCO::g_Pointers.ScriptThreads)
+		for (auto& thread : *SCOL::g_Pointers.ScriptThreads)
 		{
 			if (thread && thread->m_Context.m_ThreadId == id)
 			{

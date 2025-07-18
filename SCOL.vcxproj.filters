@@ -5,15 +5,17 @@
       <UniqueIdentifier>{043D9D7C-F073-9E0D-9960-841085761A0F}</UniqueIdentifier>
     </Filter>
     <Filter Include="util">
-      <UniqueIdentifier>{5b04f5b5-59a1-4e5c-8685-b6e39d73c3c9}</UniqueIdentifier>
+      <UniqueIdentifier>{43339F7C-2F6A-A00D-D856-8610C46C1C0F}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Common.hpp" />
     <ClInclude Include="src\Hooking.hpp" />
+    <ClInclude Include="src\Loader.hpp" />
     <ClInclude Include="src\Memory.hpp" />
     <ClInclude Include="src\Natives.hpp" />
     <ClInclude Include="src\Pointers.hpp" />
+    <ClInclude Include="src\Settings.hpp" />
     <ClInclude Include="src\rage\atArray.hpp">
       <Filter>rage</Filter>
     </ClInclude>
@@ -26,29 +28,24 @@
     <ClInclude Include="src\rage\scrVector.hpp">
       <Filter>rage</Filter>
     </ClInclude>
-    <ClInclude Include="src\Loader.hpp" />
     <ClInclude Include="src\util\Joaat.hpp">
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="src\util\Logger.hpp">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="src\util\SimpleIni.h">
-      <Filter>util</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Settings.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Common.cpp" />
     <ClCompile Include="src\Hooking.cpp" />
+    <ClCompile Include="src\Loader.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Memory.cpp" />
     <ClCompile Include="src\Natives.cpp" />
     <ClCompile Include="src\Pointers.cpp" />
+    <ClCompile Include="src\Settings.cpp" />
     <ClCompile Include="src\rage\scrThread.cpp">
       <Filter>rage</Filter>
     </ClCompile>
-    <ClCompile Include="src\Loader.cpp" />
-    <ClCompile Include="src\Settings.cpp" />
   </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@
 #include "Pointers.hpp"
 #include "rage/scrThread.hpp"
 
-namespace SCO::Loader
+namespace SCOL::Loader
 {
 	static CallHook createScriptThreadHook{};
 	static std::string currentScriptPath{};

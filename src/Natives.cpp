@@ -2,7 +2,7 @@
 #include "Memory.hpp"
 #include "Pointers.hpp"
 
-namespace SCO::Natives
+namespace SCOL::Natives
 {
 	static constexpr rage::scrNativeHash WRITE_MEMORY_HASH = 0xEEE74A05DE4C2A07;
 	static constexpr rage::scrNativeHash READ_MEMORY_HASH = 0x1E9F7F45D0E77AAC;
