@@ -23,7 +23,7 @@ namespace SCOL
 		Functions::RegisterNativeCommand RegisterNativeCommand;
 		Functions::CreateScriptThread CreateScriptThread; // This automatically creates a script program
 		Functions::StartNewGtaThread StartNewGtaThread;
-		PVOID CreateScriptThreadCaller ; // This is different than the one we're calling
+		PVOID CreateScriptThreadCaller; // This is different than the one we're calling
 		rage::atArray<rage::scrThread*>* ScriptThreads;
 	};
 

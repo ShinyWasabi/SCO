@@ -5,14 +5,21 @@
 
 namespace SCOL::Loader
 {
+	static thread_local bool isCalledByUs{};
 	static CallHook createScriptThreadHook{};
 	static std::string currentScriptPath{};
-	static std::vector<std::uint32_t> scriptThreadIds;
+	static std::vector<std::uint32_t> scriptThreadIds{};
 
 	static std::uint32_t CreateScriptThreadHook(std::uint64_t hash, PVOID args, std::uint32_t argCount, std::uint32_t stackSize)
 	{
-		Logger::Log("Loading script from path '{}'.", currentScriptPath);
-		return g_Pointers.CreateScriptThread(currentScriptPath.c_str(), args, argCount, stackSize);
+		if (isCalledByUs)
+		{
+			Logger::Log("Loading script from path '{}'.", currentScriptPath);
+			return g_Pointers.CreateScriptThread(currentScriptPath.c_str(), args, argCount, stackSize);
+		}
+
+		auto original = createScriptThreadHook->GetOriginal<std::uint32_t(*)(std::int64_t, PVOID, std::uint32_t, std::uint32_t)>();
+		return original(hash, args, argCount, stackSize);
 	}
 
 	void LoadAllScripts()
@@ -27,7 +34,7 @@ namespace SCOL::Loader
 
 		for (const auto& entry : std::filesystem::directory_iterator(scriptsFolder))
 		{
-			if (!entry.is_regular_file() || (entry.path().extension().string() != ".SCO" && entry.path().extension().string() != ".sco"))
+			if (!entry.is_regular_file() || entry.path().extension().string() != ".sco")
 			{
 				// Logger::Log("Skipped invalid file: {}", entry.path().string());
 				continue;
@@ -40,6 +47,7 @@ namespace SCOL::Loader
 				createScriptThreadHook = CallSiteHook::AddHook(g_Pointers.CreateScriptThreadCaller, reinterpret_cast<PVOID>(CreateScriptThreadHook));
 			}
 			createScriptThreadHook->Enable();
+			isCalledByUs = true;
 
 			auto name = entry.path().filename().string();
 			auto data = Settings::GetScriptData(name);
@@ -52,6 +60,7 @@ namespace SCOL::Loader
 
 			createScriptThreadHook->Disable();
 			currentScriptPath.clear();
+			isCalledByUs = false;
 
 			std::this_thread::sleep_for(100ms);
 		}
