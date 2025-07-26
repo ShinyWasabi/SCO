@@ -72,6 +72,9 @@ Reads a script static at given index.
   - `scriptHash (INT)`: The hash of the script.
   - `index (INT)`: The index of the static.
 
+- **Returns:**
+  - `INT`: The 4-byte value read from the script static.
+
 **Example Usage:**
 ```
 INT eventCooldown = READ_SCRIPT_STATIC(HASH("freemode"), 16019 + (1 + (0 * 12)) + 6)
