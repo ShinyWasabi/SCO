@@ -40,6 +40,9 @@
     <ClInclude Include="src\gta\GtaThread.hpp">
       <Filter>gta</Filter>
     </ClInclude>
+    <ClInclude Include="src\rage\tlsContext.hpp">
+      <Filter>rage</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Common.cpp" />

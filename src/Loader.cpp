@@ -51,7 +51,7 @@ namespace SCOL::Loader
 
 			auto name = entry.path().stem().string();
 			auto data = Settings::GetScriptData(name);
-			Logger::Log("Loaded script data for '{}'. ArgCount={} StackSize={}", name, data.ArgCount, data.StackSize);
+			Logger::Log("Loaded script data for '{}'. ArgCount={}, StackSize={}", name, data.ArgCount, data.StackSize);
 			if (auto id = g_Pointers.StartNewGtaThread(Joaat(name), data.Args.data(), data.ArgCount, data.StackSize))
 			{
 				Logger::Log("Started new thread with ID {}.", id);

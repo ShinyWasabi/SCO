@@ -9,7 +9,7 @@ namespace SCOL
 	static DWORD Main(PVOID)
 	{
 		Settings::Load();
-		Logger::Log("Settings loaded. ScriptsFolder={} ReloadKey={}", g_Variables.ScriptsFolder, g_Variables.ReloadKey);
+		Logger::Log("Settings loaded. ScriptsFolder={}, ReloadKey={}", g_Variables.ScriptsFolder, g_Variables.ReloadKey);
 
 		if (!g_Pointers.Init())
 		{
@@ -21,7 +21,7 @@ namespace SCOL
 		while (!rage::scrThread::FindScriptThread("Startup"_J)) // Use landing_pre_startup instead?
 			std::this_thread::sleep_for(100ms);
 
-		Natives::RegisterCustomNatives();
+		Natives::RegisterNatives();
 		Loader::LoadAllScripts();
 
 		while (true)

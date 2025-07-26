@@ -14,7 +14,7 @@ Writes the bytes in the patch array to the address found by pattern in `GTA5_Enh
 ```
 INT patch[1]
 patch[0] = 235 // 0xEB
-WRITE_MEMORY("ModelSpawnBypass", "48 8B 06 48 89 F1 FF 50 ? 84 C0 75 ? 31 F6 48 89 F0", 11, FALSE, patch, TRUE)
+WRITE_MEMORY("ModelSpawnPatch", "48 8B 06 48 89 F1 FF 50 ? 84 C0 75 ? 31 F6 48 89 F0", 11, FALSE, patch, TRUE)
 ```
 
 ### `NATIVE FUNC INT READ_MEMORY(STRING name, STRING pattern, INT offset, BOOL rip) = "0x1E9F7F45D0E77AAC"`
@@ -33,4 +33,46 @@ Reads a 4-byte integer value from the address found by pattern in `GTA5_Enhanced
 **Example Usage:**
 ```
 INT gameTimer = READ_MEMORY("GameTimer", "3B 2D ? ? ? ? 76 ? 89 D9", 2, TRUE)
+```
+
+### `NATIVE PROC SET_CURRENT_SCRIPT_THREAD(INT scriptHash) = "0x7AFACDB81809E2C1"`
+
+Spoofs the currently running script thread. Make sure to restore it when you're done with it.
+
+- **Parameters:**
+  - `scriptHash (INT)`: The hash of the script to spoof to.
+
+**Example Usage:**
+```
+INT oldHash = GET_HASH_OF_THIS_SCRIPT_NAME()
+SET_CURRENT_SCRIPT_THREAD(HASH("shop_controller"))
+// Do your stuff.
+SET_CURRENT_SCRIPT_THREAD(oldHash)
+```
+
+### `NATIVE PROC WRITE_SCRIPT_STATIC(INT scriptHash, INT index, INT value) = "0xBB3346E0994B7EA5"`
+
+Writes the given value to a script static at given index.
+
+- **Parameters:**
+  - `scriptHash (INT)`: The hash of the script.
+  - `index (INT)`: The index of the static.
+  - `value (INT)`: The value to write.
+
+**Example Usage:**
+```
+WRITE_SCRIPT_STATIC(HASH("freemode"), 19447 + 176, 0)
+```
+
+### `NATIVE FUNC INT READ_SCRIPT_STATIC(INT scriptHash, INT index) = "0x8725A6C8DE144DBC"`
+
+Reads a script static at given index.
+
+- **Parameters:**
+  - `scriptHash (INT)`: The hash of the script.
+  - `index (INT)`: The index of the static.
+
+**Example Usage:**
+```
+INT eventCooldown = READ_SCRIPT_STATIC(HASH("freemode"), 16019 + (1 + (0 * 12)) + 6)
 ```

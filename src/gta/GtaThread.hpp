@@ -1,14 +1,15 @@
 #pragma once
 #include "rage/scrThread.hpp"
 
-class scriptHandler;
-class scriptHandlerNetComponent;
+class CGameScriptHandler;
+class CGameScriptHandlerNetComponent;
 
 class GtaThread : public rage::scrThread
 {
-	scriptHandler* m_Handler;
-	scriptHandlerNetComponent* m_NetComponent;
-	std::uint32_t m_ScriptHash;
+public:
+	CGameScriptHandler* m_Handler;
+	CGameScriptHandlerNetComponent* m_NetComponent;
+	std::uint32_t m_ScriptHash2;
 	std::uint32_t m_ForceCleanupPc;
 	std::uint32_t m_ForceCleanupFp;
 	std::uint32_t m_ForceCleanupSp;

@@ -2,5 +2,5 @@
 
 namespace SCOL::Natives
 {
-	void RegisterCustomNatives();
+	void RegisterNatives();
 }

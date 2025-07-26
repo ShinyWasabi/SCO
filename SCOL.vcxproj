@@ -74,6 +74,7 @@
     <ClInclude Include="src\Memory.hpp" />
     <ClInclude Include="src\Natives.hpp" />
     <ClInclude Include="src\Pointers.hpp" />
+    <ClInclude Include="src\rage\tlsContext.hpp" />
     <ClInclude Include="src\Settings.hpp" />
     <ClInclude Include="src\rage\atArray.hpp" />
     <ClInclude Include="src\rage\scrNativeCallContext.hpp" />
