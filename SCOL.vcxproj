@@ -68,6 +68,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Common.hpp" />
+    <ClInclude Include="src\gta\GtaThread.hpp" />
     <ClInclude Include="src\Hooking.hpp" />
     <ClInclude Include="src\Loader.hpp" />
     <ClInclude Include="src\Memory.hpp" />

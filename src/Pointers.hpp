@@ -7,6 +7,7 @@ namespace rage
 	class atArray;
 	class scrThread;
 }
+class GtaThread;
 
 namespace SCOL
 {
@@ -15,6 +16,7 @@ namespace SCOL
 		using RegisterNativeCommand = void (*)(PVOID table, rage::scrNativeHash hash, rage::scrNativeHandler handler);
 		using CreateScriptThread = std::uint32_t(*)(const char* path, PVOID args, std::uint32_t argCount, std::uint32_t stackSize);
 		using StartNewGtaThread = std::uint32_t(*)(std::uint32_t hash, PVOID args, std::uint32_t argCount, std::uint32_t stackSize);
+		using KillGtaThread = void(*)(GtaThread* thread);
 	}
 
 	struct PointerData
@@ -23,6 +25,7 @@ namespace SCOL
 		Functions::RegisterNativeCommand RegisterNativeCommand;
 		Functions::CreateScriptThread CreateScriptThread; // This automatically creates a script program
 		Functions::StartNewGtaThread StartNewGtaThread;
+		Functions::KillGtaThread KillGtaThread;
 		PVOID CreateScriptThreadCaller; // This is different than the one we're calling
 		rage::atArray<rage::scrThread*>* ScriptThreads;
 	};

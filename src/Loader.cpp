@@ -1,7 +1,7 @@
 #include "Loader.hpp"
 #include "Hooking.hpp"
 #include "Pointers.hpp"
-#include "rage/scrThread.hpp"
+#include "gta/GtaThread.hpp"
 
 namespace SCOL::Loader
 {
@@ -49,10 +49,10 @@ namespace SCOL::Loader
 			createScriptThreadHook->Enable();
 			isCalledByUs = true;
 
-			auto name = entry.path().filename().string();
+			auto name = entry.path().stem().string();
 			auto data = Settings::GetScriptData(name);
 			Logger::Log("Loaded script data for '{}'. ArgCount={} StackSize={}", name, data.ArgCount, data.StackSize);
-			if (auto id = g_Pointers.StartNewGtaThread(0x0000, data.Args.data(), data.ArgCount, data.StackSize))
+			if (auto id = g_Pointers.StartNewGtaThread(Joaat(name), data.Args.data(), data.ArgCount, data.StackSize))
 			{
 				Logger::Log("Started new thread with ID {}.", id);
 				scriptThreadIds.push_back(id);
@@ -70,9 +70,9 @@ namespace SCOL::Loader
 	{
 		for (auto id : scriptThreadIds)
 		{
-			if (auto thread = rage::scrThread::FindScriptThreadById(id))
+			if (auto thread = static_cast<GtaThread*>(rage::scrThread::FindScriptThreadById(id)))
 			{
-				thread->Kill();
+				g_Pointers.KillGtaThread(thread); // thread->Kill();
 				Logger::Log("Killed thread with ID {}.", id);
 			}
 		}

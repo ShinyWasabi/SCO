@@ -7,6 +7,9 @@
     <Filter Include="util">
       <UniqueIdentifier>{43339F7C-2F6A-A00D-D856-8610C46C1C0F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="gta">
+      <UniqueIdentifier>{664520a1-6a0d-4487-8117-97d5b41b311e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Common.hpp" />
@@ -33,6 +36,9 @@
     </ClInclude>
     <ClInclude Include="src\util\Logger.hpp">
       <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gta\GtaThread.hpp">
+      <Filter>gta</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

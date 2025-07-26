@@ -25,6 +25,11 @@ namespace SCOL
 			StartNewGtaThread = addr->As<Functions::StartNewGtaThread>();
 		}
 
+		if (auto addr = Memory::ScanPattern("KillGtaThread", "48 89 F2 FF 50 ? 0F BE 86"))
+		{
+			KillGtaThread = addr->Sub(0x21).As<Functions::KillGtaThread>();
+		}
+
 		if (auto addr = Memory::ScanPattern("CreateScriptThreadCaller", "E8 ? ? ? ? 89 C6 89 C1 E8 ? ? ? ? 48 85 C0"))
 		{
 			CreateScriptThreadCaller = addr->As<PVOID>();
@@ -35,7 +40,7 @@ namespace SCOL
 			ScriptThreads = addr->Add(3).Rip().As<rage::atArray<rage::scrThread*>*>();
 		}
 
-		if (!NativeRegistrationTable || !RegisterNativeCommand || !CreateScriptThread || !StartNewGtaThread || !CreateScriptThreadCaller || !ScriptThreads)
+		if (!NativeRegistrationTable || !RegisterNativeCommand || !CreateScriptThread || !StartNewGtaThread || !KillGtaThread || !CreateScriptThreadCaller || !ScriptThreads)
 			return false;
 
 		return true;
