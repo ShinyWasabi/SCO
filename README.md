@@ -1,17 +1,30 @@
 # SCOL
-Allows you to load RAGE compiled scripts (`.sco` files) for Grand Theft Auto V Enhanced. Strictly for educational purposes.
+Allows you to load RAGE scripts (`.sco` files) for Grand Theft Auto V Enhanced. Strictly for educational purposes.
 
 ## How It Works
-Although the SCO format is never used in GTA V, the game engine still has the support for loading them. However, scripts compiled for GTA IV are not directly compatible due to different SCO header and incompatible natives and globals.
+Although the SCO format is never used in GTA V, the game engine still has the support for loading them. However, scripts compiled for other RAGE titles are not directly compatible due to different SCO header and incompatible natives and globals.
 
-SCOL works by redirecting the script thread creation function to the unused SCO loader. This function loads a `.sco` file from a specified path on disk and creates a script program and thread for it automatically.
+SCOL works by creating a script thread using the unused SCO loader. This function loads a `.sco` file from a specified path on disk and creates a script program and thread for it automatically.
 
-An example script to test can be found [here](https://github.com/ShinyWasabi/SCOL/blob/main/hello_world.sco).
+An example script to test can be found [here](https://github.com/ShinyWasabi/SCOL/raw/main/hello_world.sco).
 
-If you want to load YSC scripts, you need to convert them to SCO (without the RSC7 header) using [YSC2SCO.exe](https://github.com/ShinyWasabi/SCOL/blob/main/YSC2SCO.exe). I won't provide the source code for this program due to reasons.
+If you want to load YSC scripts, you need to convert them to SCO (without the RSC7 header) using [YSC2SCO.exe](https://github.com/ShinyWasabi/SCOL/raw/main/YSC2SCO.exe). I won't provide the source code for this program due to reasons.
+
+## Building
+To build SCOL you need:
+* Visual Studio 2022
+* [Premake 5.0](https://premake.github.io/download) in your PATH
+
+To set up the build environment, run the following commands in a terminal:
+```dos
+git clone https://github.com/ShinyWasabi/SCOL.git --recurse-submodules
+cd SCOL
+GenerateProjects.bat
+```
+Now, you will be able to open the solution, and simply build it in Visual Studio.
 
 ## Installation
-- Download [SCOL.asi](https://github.com/ShinyWasabi/SCOL/releases/download/SCOL/SCOL.asi).
+- Get `SCOL.asi` from `.\bin\Release` after building the solution.
 - Download [xinput1_4.dll](https://github.com/ThirteenAG/Ultimate-ASI-Loader/releases/download/x64-latest/xinput1_4-x64.zip).
 - Place both files in the game directory where `GTA5_Enhanced.exe` is located.
 - Launch the game. Make sure BattlEye is disabled.
