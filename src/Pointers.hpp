@@ -29,6 +29,8 @@ namespace SCOL
 		Functions::RegisterScriptHandler RegisterScriptHandler;
 		Functions::KillGtaThread KillGtaThread;
 		rage::atArray<rage::scrThread*>* ScriptThreads;
+		PVOID AllocateGlobalBlock;
+		std::int64_t** ScriptGlobals;
 	};
 
 	struct Pointers : PointerData

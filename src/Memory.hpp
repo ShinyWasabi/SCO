@@ -1,5 +1,4 @@
 #pragma once
-#include "util/Joaat.hpp"
 
 namespace SCOL
 {

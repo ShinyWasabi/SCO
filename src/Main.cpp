@@ -1,23 +1,11 @@
 #include "Pointers.hpp"
+#include "Hooking.hpp"
 #include "Natives.hpp"
 #include "Loader.hpp"
-#include "util/Joaat.hpp"
 #include "rage/scrThread.hpp"
-#include <MinHook.h>
 
 namespace SCOL
 {
-	static LRESULT(*WndProcOriginal)(HWND, UINT, WPARAM, LPARAM) = nullptr;
-	static LRESULT WndProcDetour(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
-	{
-		if (umsg == WM_KEYUP && wparam == g_Variables.ReloadKey)
-		{
-			Loader::ReloadAllScripts();
-		}
-
-		return WndProcOriginal(hwnd, umsg, wparam, lparam);
-	}
-
 	static DWORD Main(PVOID)
 	{
 		Settings::Load();
@@ -29,12 +17,13 @@ namespace SCOL
 			return EXIT_FAILURE;
 		}
 
-		MH_Initialize();
-		MH_CreateHook(g_Pointers.WndProc, WndProcDetour, reinterpret_cast<void**>(&WndProcOriginal));
-		MH_EnableHook(g_Pointers.WndProc);
-		Logger::Log("Enabled hook for WndProc.");
+		if (!Hooking::Init())
+		{
+			MessageBoxA(0, "Failed to initialize hooking.", "SCOL", MB_ICONERROR);
+			return EXIT_FAILURE;
+		}
+		Logger::Log("Hooking initialized.");
 
-		Logger::Log("Waiting for global blocks to load.");
 		while (!rage::scrThread::FindScriptThread("Startup"_J)) // Use landing_pre_startup instead?
 			std::this_thread::sleep_for(100ms);
 

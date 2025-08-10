@@ -1,6 +1,7 @@
 #include "Loader.hpp"
 #include "Pointers.hpp"
 #include "gta/GtaThread.hpp"
+#include "rage/atArray.hpp"
 
 namespace SCOL::Loader
 {
@@ -40,6 +41,12 @@ namespace SCOL::Loader
 
 	void ReloadAllScripts()
 	{
+		if (!g_Pointers.ScriptThreads->size() || rage::scrThread::FindScriptThread("landing_pre_startup"_J) || rage::scrThread::FindScriptThread("Startup"_J))
+		{
+			Logger::Log("Not safe to reload scripts at the moment.");
+			return;
+		}
+
 		for (auto id : scriptThreadIds)
 		{
 			if (auto thread = reinterpret_cast<GtaThread*>(rage::scrThread::FindScriptThreadById(id)))

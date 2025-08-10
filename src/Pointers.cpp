@@ -41,7 +41,17 @@ namespace SCOL
 			ScriptThreads = addr->Add(3).Rip().As<rage::atArray<rage::scrThread*>*>();
 		}
 
-		if (!WndProc || !NativeRegistrationTable || !RegisterNativeCommand || !CreateScriptThread || !ScriptHandlerMgrPtr || !RegisterScriptHandler || !KillGtaThread || !ScriptThreads)
+		if (auto addr = Memory::ScanPattern("AllocateGlobalBlock", "E8 ? ? ? ? 4C 89 E1 E8 ? ? ? ? 41 BE FF 3F"))
+		{
+			AllocateGlobalBlock = addr->Add(1).Rip().As<PVOID>();
+		}
+
+		if (auto addr = Memory::ScanPattern("ScriptGlobals", "48 8B 8E B8 00 00 00 48 8D 15 ? ? ? ? 49 89 D8"))
+		{
+			ScriptGlobals = addr->Add(7).Add(3).Rip().As<std::int64_t**>();
+		}
+
+		if (!WndProc || !NativeRegistrationTable || !RegisterNativeCommand || !CreateScriptThread || !ScriptHandlerMgrPtr || !RegisterScriptHandler || !KillGtaThread || !ScriptThreads || !AllocateGlobalBlock || !ScriptGlobals)
 			return false;
 
 		return true;

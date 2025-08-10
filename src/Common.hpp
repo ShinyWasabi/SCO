@@ -18,6 +18,7 @@
 #include <stack>
 #include <unordered_set>
 
+#include "util/Joaat.hpp"
 #include "util/Logger.hpp"
 #include "Settings.hpp"
 
