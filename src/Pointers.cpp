@@ -5,6 +5,11 @@ namespace SCOL
 {
 	bool Pointers::Init()
 	{
+		if (auto addr = Memory::ScanPattern("WndProc", "3D 85 00 00 00 0F 87 2D 02 00 00"))
+		{
+			WndProc = addr->Sub(0x4F).As<PVOID>();
+		}
+
 		if (auto addr = Memory::ScanPattern("NativeRegistrationTable", "4C 8D 0D ? ? ? ? 4C 8D 15 ? ? ? ? 45 31 F6"))
 		{
 			NativeRegistrationTable = addr->Add(3).Rip().As<PVOID>();
@@ -20,9 +25,10 @@ namespace SCOL
 			CreateScriptThread = addr->Sub(0xC).As<Functions::CreateScriptThread>();
 		}
 
-		if (auto addr = Memory::ScanPattern("StartNewGtaThread", "56 57 48 83 EC 28 48 89 CF E8 ? ? ? ? 89 C6 89 C1"))
+		if (auto addr = Memory::ScanPattern("ScriptHandlerMgrPtr&RegisterScriptHandler", "48 8D 0D ? ? ? ? 48 89 C2 E8 ? ? ? ? 8B 15"))
 		{
-			StartNewGtaThread = addr->As<Functions::StartNewGtaThread>();
+			ScriptHandlerMgrPtr = addr->Add(3).Rip().As<PVOID>();
+			RegisterScriptHandler = addr->Add(0xB).Rip().As<Functions::RegisterScriptHandler>();
 		}
 
 		if (auto addr = Memory::ScanPattern("KillGtaThread", "48 89 F2 FF 50 ? 0F BE 86"))
@@ -30,17 +36,12 @@ namespace SCOL
 			KillGtaThread = addr->Sub(0x21).As<Functions::KillGtaThread>();
 		}
 
-		if (auto addr = Memory::ScanPattern("CreateScriptThreadCaller", "E8 ? ? ? ? 89 C6 89 C1 E8 ? ? ? ? 48 85 C0"))
-		{
-			CreateScriptThreadCaller = addr->As<PVOID>();
-		}
-
 		if (auto addr = Memory::ScanPattern("ScriptThreads", "48 8B 05 ? ? ? ? 48 89 34 F8 48 FF C7 48 39 FB 75 97"))
 		{
 			ScriptThreads = addr->Add(3).Rip().As<rage::atArray<rage::scrThread*>*>();
 		}
 
-		if (!NativeRegistrationTable || !RegisterNativeCommand || !CreateScriptThread || !StartNewGtaThread || !KillGtaThread || !CreateScriptThreadCaller || !ScriptThreads)
+		if (!WndProc || !NativeRegistrationTable || !RegisterNativeCommand || !CreateScriptThread || !ScriptHandlerMgrPtr || !RegisterScriptHandler || !KillGtaThread || !ScriptThreads)
 			return false;
 
 		return true;

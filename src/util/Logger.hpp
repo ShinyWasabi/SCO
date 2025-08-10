@@ -5,13 +5,6 @@ namespace SCOL
     class Logger
     {
     public:
-        Logger() :
-            m_FileName("SCOL.log")
-        {
-            std::ofstream file(m_FileName, std::ofstream::out | std::ofstream::trunc);
-            file.close();
-        }
-
         template<typename... Args>
         static void Log(std::format_string<Args...> fmt, Args&&... args)
         {
@@ -19,6 +12,13 @@ namespace SCOL
         }
 
     private:
+        Logger() :
+            m_FileName("SCOL.log")
+        {
+            std::ofstream file(m_FileName, std::ofstream::out | std::ofstream::trunc);
+            file.close();
+        }
+
         static Logger& GetInstance()
         {
             static Logger instance;
