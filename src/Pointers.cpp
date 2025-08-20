@@ -48,6 +48,10 @@ namespace SCOL
             LoadingScreenState = addr.Add(2).Rip().As<std::uint32_t*>();
         });
 
+        scanner.Add("sysVirtualFree", "E8 ? ? ? ? 4A C7 04 3B 00 00 00 00", [this](Memory addr) {
+            sysVirtualFree = addr.Add(1).Rip().As<Functions::sysVirtualFree>();
+        });
+
         return scanner.Scan();
     }
 }

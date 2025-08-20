@@ -17,10 +17,13 @@ namespace SCOL
 
     static void AllocateGlobalBlockDetour(rage::scrProgram* program)
     {
-        if (g_Pointers.ScriptGlobals[program->GetGlobalBlockIndex()] != nullptr)
+        const auto idx = program->GetGlobalBlockIndex();
+        if (g_Pointers.ScriptGlobals[idx] != nullptr)
         {
-            LOGF(INFO, "Global block {} has already been allocated.", program->GetGlobalBlockIndex());
-            return;
+            LOGF(INFO, "Global block {} has already been allocated, freeing it.", idx);
+
+            g_Pointers.sysVirtualFree(g_Pointers.ScriptGlobals[idx]);
+            g_Pointers.ScriptGlobals[idx] = nullptr;
         }
 
         Hooking::GetOriginal<decltype(&AllocateGlobalBlockDetour)>("AllocateGlobalBlockHook")(program);

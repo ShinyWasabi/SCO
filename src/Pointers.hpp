@@ -18,6 +18,7 @@ namespace SCOL
 		using LoadAndStartScriptObj = std::uint32_t(*)(const char* path, PVOID args, std::uint32_t argCount, std::uint32_t stackSize);
 		using RegisterScriptHandler = std::uint32_t(*)(PVOID _this, GtaThread* thread);
 		using KillGtaThread = void(*)(GtaThread* thread);
+		using sysVirtualFree = bool(*)(void* ptr);
 	}
 
 	struct PointerData
@@ -33,6 +34,7 @@ namespace SCOL
 		PVOID AllocateGlobalBlock;
 		scrValue** ScriptGlobals;
 		std::uint32_t* LoadingScreenState;
+		Functions::sysVirtualFree sysVirtualFree;
 	};
 
 	struct Pointers : PointerData
