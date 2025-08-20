@@ -1,5 +1,5 @@
 #include "Settings.hpp"
-#include "util/SimpleIni.h"
+#include "util/IniFile.hpp"
 
 namespace SCOL
 {
@@ -23,27 +23,26 @@ namespace SCOL
 		return args;
 	}
 
-	Settings::Settings() :
-		m_FileName("SCOL.ini")
+	void Settings::InitImpl(const std::string& file)
 	{
+		m_FileName = file;
+		Load();
 	}
 
 	void Settings::LoadImpl()
 	{
-		CSimpleIniA ini;
-		ini.SetUnicode();
-
+		IniFile ini;
 		ini.LoadFile(m_FileName.c_str());
 
 		bool dirty = false;
 
-		if (!ini.GetValue("Settings", "ScriptsFolder", nullptr))
+		if (!ini.GetValue("Settings", "ScriptsFolder"))
 		{
 			ini.SetValue("Settings", "ScriptsFolder", ".");
 			dirty = true;
 		}
 
-		if (!ini.GetValue("Settings", "ReloadKey", nullptr))
+		if (!ini.GetValue("Settings", "ReloadKey"))
 		{
 			ini.SetLongValue("Settings", "ReloadKey", VK_F5);
 			dirty = true;
@@ -69,26 +68,24 @@ namespace SCOL
 
 	Settings::ScriptData Settings::GetScriptDataImpl(const std::string& name)
 	{
-		CSimpleIniA ini;
-		ini.SetUnicode();
-
+		IniFile ini;
 		ini.LoadFile(m_FileName.c_str());
 
 		bool dirty = false;
 
-		if (!ini.GetValue(name.c_str(), "Args", nullptr))
+		if (!ini.GetValue(name.c_str(), "Args"))
 		{
 			ini.SetValue(name.c_str(), "Args", "0");
 			dirty = true;
 		}
 
-		if (!ini.GetValue(name.c_str(), "ArgCount", nullptr))
+		if (!ini.GetValue(name.c_str(), "ArgCount"))
 		{
 			ini.SetLongValue(name.c_str(), "ArgCount", 0);
 			dirty = true;
 		}
 
-		if (!ini.GetValue(name.c_str(), "StackSize", nullptr))
+		if (!ini.GetValue(name.c_str(), "StackSize"))
 		{
 			ini.SetLongValue(name.c_str(), "StackSize", 1424);
 			dirty = true;

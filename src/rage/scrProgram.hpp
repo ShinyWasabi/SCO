@@ -3,6 +3,8 @@
 
 namespace rage
 {
+	union scrValue;
+
 	class scrProgram : public pgBase
 	{
 	public:
@@ -13,8 +15,8 @@ namespace rage
 		std::uint32_t m_StaticCount;
 		std::uint32_t m_GlobalCountAndBlock;
 		std::uint32_t m_NativeCount;
-		std::int64_t* m_Statics;
-		std::int64_t** m_Globals;
+		scrValue* m_Statics;
+		scrValue** m_Globals;
 		std::uint64_t* m_Natives;
 		std::uint32_t m_ProcCount;
 		char pad_004C[4];
@@ -57,7 +59,7 @@ namespace rage
 			return nullptr;
 		}
 
-		std::int64_t* GetStatic(std::uint32_t index) const
+		scrValue* GetStatic(std::uint32_t index) const
 		{
 			if (index < m_StaticCount)
 				return &m_Statics[index];
@@ -93,12 +95,12 @@ namespace rage
 			return 0;
 		}
 
-		std::int64_t* GetGlobalBlock(std::uint32_t block) const
+		scrValue* GetGlobalBlock(std::uint32_t block) const
 		{
 			return m_Globals[block];
 		}
 
-		std::int64_t* GetGlobal(std::uint32_t index) const
+		scrValue* GetGlobal(std::uint32_t index) const
 		{
 			if (index < GetGlobalCount())
 				return &m_Globals[index >> 0x12 & 0x3F][index & 0x3FFFF];

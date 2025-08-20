@@ -2,41 +2,56 @@
 #include "Pointers.hpp"
 #include "Loader.hpp"
 #include "rage/scrProgram.hpp"
-#include <MinHook.h>
 
-namespace SCOL::Hooking
+namespace SCOL
 {
-	static LRESULT(*WndProcOriginal)(HWND, UINT, WPARAM, LPARAM) = nullptr;
-	static LRESULT WndProcDetour(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
-	{
-		if (umsg == WM_KEYUP && wparam == g_Variables.ReloadKey)
-		{
-			Loader::ReloadAllScripts();
-		}
+    static LRESULT WndProcDetour(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
+    {
+        if (umsg == WM_KEYUP && wparam == g_Variables.ReloadKey)
+        {
+            Loader::ReloadScripts();
+        }
 
-		return WndProcOriginal(hwnd, umsg, wparam, lparam);
-	}
+        return Hooking::GetOriginal<decltype(&WndProcDetour)>("WndProcHook")(hwnd, umsg, wparam, lparam);
+    }
 
-	static void(*AllocateGlobalBlockOriginal)(rage::scrProgram*) = nullptr;
-	static void AllocateGlobalBlockDetour(rage::scrProgram* program)
-	{
-		if (g_Pointers.ScriptGlobals[program->GetGlobalBlockIndex()] != nullptr) // It should be R* handling this, not us... Currently globals are only freed when all scripts are terminated, which only happens when returning to the main menu or exiting the game.
-		{
-			Logger::Log("Global block {} has already been allocated.", program->GetGlobalBlockIndex());
-			return; // We can free the block using game's VirtualFree, but that would also wipe existing global values, which is not really good.
-		}
+    static void AllocateGlobalBlockDetour(rage::scrProgram* program)
+    {
+        if (g_Pointers.ScriptGlobals[program->GetGlobalBlockIndex()] != nullptr)
+        {
+            LOGF(INFO, "Global block {} has already been allocated.", program->GetGlobalBlockIndex());
+            return;
+        }
 
-		AllocateGlobalBlockOriginal(program);
-	}
+        Hooking::GetOriginal<decltype(&AllocateGlobalBlockDetour)>("AllocateGlobalBlockHook")(program);
+    }
 
-	bool Init()
-	{
-		if (MH_Initialize() != MH_OK)
-			return false;
+    bool Hooking::Init()
+    {
+        if (MH_Initialize() != MH_OK)
+            return false;
 
-		MH_CreateHook(g_Pointers.WndProc, WndProcDetour, reinterpret_cast<void**>(&WndProcOriginal));
-		MH_CreateHook(g_Pointers.AllocateGlobalBlock, AllocateGlobalBlockDetour, reinterpret_cast<void**>(&AllocateGlobalBlockOriginal));
+        AddHook("WndProcHook", g_Pointers.WndProc, WndProcDetour);
+        AddHook("AllocateGlobalBlockHook", g_Pointers.AllocateGlobalBlock, AllocateGlobalBlockDetour);
 
-		return MH_EnableHook(MH_ALL_HOOKS) == MH_OK;
-	}
+        bool success = true;
+
+        for (auto& hook : m_Hooks)
+        {
+            if (auto result = MH_CreateHook(hook.m_Target, hook.m_Detour, &hook.m_Original); result != MH_OK)
+            {
+                LOGF(FATAL, "Failed to create hook for {} ({}).", hook.m_Name, MH_StatusToString(result));
+                success = false;
+                continue;
+            }
+
+            if (auto result = MH_EnableHook(hook.m_Target); result != MH_OK)
+            {
+                LOGF(FATAL, "Failed to enable hook for {} ({}).", hook.m_Name, MH_StatusToString(result));
+                success = false;
+            }
+        }
+
+        return success;
+    }
 }

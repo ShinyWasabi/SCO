@@ -18,7 +18,10 @@ namespace SCOL
 			std::uint32_t StackSize = 1424;
 		};
 
-		Settings();
+		static void Init(const std::string& file)
+		{
+			GetInstance().InitImpl(file);
+		}
 
 		static void Load()
 		{
@@ -42,6 +45,7 @@ namespace SCOL
 			return instance;
 		}
 
+		void InitImpl(const std::string& file);
 		void LoadImpl();
 		void UpdateImpl();
 		ScriptData GetScriptDataImpl(const std::string& name);

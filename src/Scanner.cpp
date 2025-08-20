@@ -1,4 +1,4 @@
-#include "Memory.hpp"
+#include "Scanner.hpp"
 
 namespace SCOL
 {
@@ -61,7 +61,7 @@ namespace SCOL
 		return bytes;
 	}
 
-	std::optional<Memory> Memory::ScanPattern(const std::optional<std::uint8_t>* pattern, std::size_t length, Memory begin, std::size_t moduleSize)
+	std::optional<Memory> Scanner::ScanPattern(const std::optional<std::uint8_t>* pattern, std::size_t length, Memory begin, std::size_t moduleSize)
 	{
 		std::size_t maxShift = length;
 		std::size_t maxIdx = length - 1;
@@ -108,7 +108,7 @@ namespace SCOL
 		return std::nullopt;
 	}
 
-	std::optional<Memory> Memory::ScanPattern(const char* name, const char* pattern)
+	std::optional<Memory> Scanner::ScanPattern(const char* name, const char* pattern)
 	{
 		auto hash = Joaat(name);
 
@@ -125,12 +125,35 @@ namespace SCOL
 
 		if (auto result = ScanPattern(data, length, base, size))
 		{
-			Logger::Log("Found pattern {} at 0x{:X}.", name, result->As<std::uintptr_t>());
+			LOGF(INFO, "Found pattern {} at 0x{:X}.", name, result->As<std::uintptr_t>());
 			m_CachedResults[hash] = result;
 			return result;
 		}
 
-		Logger::Log("Failed to find pattern {}.", name);
+		LOGF(FATAL, "Failed to find pattern {}.", name);
 		return std::nullopt;
+	}
+
+	void Scanner::Add(const char* name, const char* pattern, const ScanFunc& func)
+	{
+		m_Patterns.push_back({name, pattern, func});
+	}
+
+	bool Scanner::Scan()
+	{
+		bool success = true;
+		for (auto& pattern : m_Patterns)
+		{
+			if (auto addr = ScanPattern(pattern.m_Name.c_str(), pattern.m_Pattern.c_str()))
+			{
+				pattern.m_Func(*addr);
+			}
+			else
+			{
+				success = false;
+			}
+		}
+
+		return success;
 	}
 }

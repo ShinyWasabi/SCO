@@ -1,8 +1,8 @@
 #include "Natives.hpp"
-#include "Memory.hpp"
 #include "Pointers.hpp"
-#include "rage/tlsContext.hpp"
+#include "Scanner.hpp"
 #include "rage/scrThread.hpp"
+#include "rage/tlsContext.hpp"
 
 namespace SCOL::Natives
 {
@@ -14,14 +14,14 @@ namespace SCOL::Natives
 
 	static void NativeCommandWriteMemory(rage::scrNativeCallContext* ctx)
 	{
-		auto name = ctx->GetArg<const char*>(0);
-		auto pattern = ctx->GetArg<const char*>(1);
-		auto offset = ctx->GetArg<int>(2);
-		auto rip = ctx->GetArg<int>(3);
-		auto patch = ctx->GetArg<std::uint64_t*>(4);
-		auto protect = ctx->GetArg<int>(5);
+		auto name = ctx->GetArg(0).String;
+		auto pattern = ctx->GetArg(1).String;
+		auto offset = ctx->GetArg(2).Int;
+		auto rip = ctx->GetArg(3).Int;
+		auto patch = ctx->GetArg(4).Reference;
+		auto protect = ctx->GetArg(5).Int;
 
-		if (auto addr = Memory::ScanPattern(name, pattern))
+		if (auto addr = Scanner::ScanPattern(name, pattern))
 		{
 			auto loc = addr->Add(offset);
 			if (rip)
@@ -29,13 +29,13 @@ namespace SCOL::Natives
 
 			auto ptr = loc.As<std::uint8_t*>();
 
-			auto count = static_cast<int>(patch[0]);
+			auto count = static_cast<int>(patch[0].Any);
 			auto items = patch + 1;
 
 			std::vector<std::uint8_t> data;
 			for (int i = 0; i < count; i++)
 			{
-				data.push_back(static_cast<std::uint8_t>(items[i]));
+				data.push_back(static_cast<std::uint8_t>(items[i].Any));
 			}
 
 			if (protect)
@@ -54,27 +54,27 @@ namespace SCOL::Natives
 
 	static void NativeCommandReadMemory(rage::scrNativeCallContext* ctx)
 	{
-		auto name = ctx->GetArg<const char*>(0);
-		auto pattern = ctx->GetArg<const char*>(1);
-		auto offset = ctx->GetArg<int>(2);
-		auto rip = ctx->GetArg<int>(3);
+		auto name = ctx->GetArg(0).String;
+		auto pattern = ctx->GetArg(1).String;
+		auto offset = ctx->GetArg(2).Int;
+		auto rip = ctx->GetArg(3).Int;
 
-		int retVal = 0;
-		if (auto addr = Memory::ScanPattern(name, pattern))
+		rage::scrValue retVal{};
+		if (auto addr = Scanner::ScanPattern(name, pattern))
 		{
 			auto loc = addr->Add(offset);
 			if (rip)
 				loc = loc.Rip();
 
-			retVal = loc.As<std::int32_t&>();
+			retVal.Int = loc.As<std::int32_t&>();
 		}
 
-		ctx->SetReturnValue<int>(static_cast<int>(retVal));
+		ctx->SetReturnValue(retVal);
 	}
 
 	static void NativeCommandSetCurrentScriptThread(rage::scrNativeCallContext* ctx)
 	{
-		auto hash = ctx->GetArg<joaat_t>(0);
+		auto hash = ctx->GetArg(0).Int;
 
 		if (auto thread = rage::scrThread::FindScriptThread(hash))
 		{
@@ -85,13 +85,13 @@ namespace SCOL::Natives
 
 	static void NativeCommandWriteScriptStatic(rage::scrNativeCallContext* ctx)
 	{
-		auto hash = ctx->GetArg<joaat_t>(0);
-		auto index = ctx->GetArg<int>(1);
-		auto value = ctx->GetArg<int>(2);
+		auto hash = ctx->GetArg(0).Int;
+		auto index = ctx->GetArg(1).Int;
+		auto value = ctx->GetArg(2).Int;
 
 		if (auto thread = rage::scrThread::FindScriptThread(hash))
 		{
-			auto addr = reinterpret_cast<uintptr_t*>((uintptr_t)thread->m_Stack + (index * sizeof(uintptr_t)));
+			auto addr = reinterpret_cast<std::uintptr_t*>((std::uintptr_t)thread->m_Stack + (index * sizeof(rage::scrValue)));
 			if (addr)
 			{
 				*addr = value;
@@ -101,27 +101,27 @@ namespace SCOL::Natives
 
 	static void NativeCommandReadScriptStatic(rage::scrNativeCallContext* ctx)
 	{
-		auto hash = ctx->GetArg<joaat_t>(0);
-		auto index = ctx->GetArg<int>(1);
+		auto hash = ctx->GetArg(0).Int;
+		auto index = ctx->GetArg(1).Int;
 
-		int retVal = 0;
+		rage::scrValue retVal{};
 		if (auto thread = rage::scrThread::FindScriptThread(hash))
 		{
-			auto addr = reinterpret_cast<uintptr_t*>((uintptr_t)thread->m_Stack + (index * sizeof(uintptr_t)));
+			auto addr = reinterpret_cast<std::uintptr_t*>((std::uintptr_t)thread->m_Stack + (index * sizeof(rage::scrValue)));
 			if (addr)
 			{
-				retVal = *reinterpret_cast<int*>(addr);
+				retVal.Int = *reinterpret_cast<int*>(addr);
 			}
 		}
 
-		ctx->SetReturnValue<int>(static_cast<int>(retVal));
+		ctx->SetReturnValue(retVal);
 	}
 
 	void RegisterNatives()
 	{
 		static auto RegisterNative = [](rage::scrNativeHash hash, rage::scrNativeHandler handler) {
 			g_Pointers.RegisterNativeCommand(g_Pointers.NativeRegistrationTable, hash, handler);
-			Logger::Log("Registered native with hash 0x{:X}.", hash);
+			LOGF(INFO, "Registered native command with hash 0x{:X}.", hash);
 		};
 
 		RegisterNative(WRITE_MEMORY, NativeCommandWriteMemory);

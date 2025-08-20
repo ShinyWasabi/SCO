@@ -1,6 +1,6 @@
 #include "scrThread.hpp"
 #include "atArray.hpp"
-#include "../Pointers.hpp"
+#include "Pointers.hpp"
 
 namespace rage
 {

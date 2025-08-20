@@ -1,75 +1,66 @@
 #pragma once
-#include "scrVector.hpp"
+#include "scrValue.hpp"
+#include "Vector3.hpp"
 
 namespace rage
 {
 	class scrNativeCallContext
 	{
 	public:
-		constexpr void reset()
+		scrNativeCallContext(scrValue* retVal, std::int32_t argCount, scrValue* args) :
+			m_ReturnValue(retVal),
+			m_ArgCount(argCount),
+			m_Args(args),
+			m_NumVectorRefs(0)
 		{
-			m_ArgCount = 0;
-			m_NumVectorRefs = 0;
 		}
 
-		template<typename T>
-		constexpr void PushArg(T&& value)
+		constexpr void PushArg(const scrValue& value)
 		{
-			static_assert(sizeof(T) <= sizeof(std::uint64_t));
-			*reinterpret_cast<std::remove_cv_t<std::remove_reference_t<T>>*>(reinterpret_cast<std::uint64_t*>(m_Args) + (m_ArgCount++)) = std::forward<T>(value);
+			m_Args[m_ArgCount++] = value;
 		}
 
-		template<typename T>
-		constexpr T& GetArg(std::size_t index)
+		constexpr scrValue& GetArg(std::size_t index)
 		{
-			static_assert(sizeof(T) <= sizeof(std::uint64_t));
-			return *reinterpret_cast<T*>(reinterpret_cast<std::uint64_t*>(m_Args) + index);
+			return m_Args[index];
 		}
 
-		template<typename T>
-		constexpr void SetArg(std::size_t index, T&& value)
+		constexpr void SetArg(std::size_t index, const scrValue& value)
 		{
-			static_assert(sizeof(T) <= sizeof(std::uint64_t));
-			*reinterpret_cast<std::remove_cv_t<std::remove_reference_t<T>>*>(reinterpret_cast<std::uint64_t*>(m_Args) + index) = std::forward<T>(value);
+			m_Args[index] = value;
 		}
 
-		template<typename T>
-		constexpr T* GetReturnValue()
+		constexpr scrValue& GetReturnValue()
 		{
-			return reinterpret_cast<T*>(m_ReturnValue);
+			return *m_ReturnValue;
 		}
 
-		template<typename T>
-		constexpr void SetReturnValue(T&& value)
+		constexpr void SetReturnValue(const scrValue& value)
 		{
-			*reinterpret_cast<std::remove_cv_t<std::remove_reference_t<T>>*>(m_ReturnValue) = std::forward<T>(value);
+			*m_ReturnValue = value;
 		}
 
 		void FixVectors()
 		{
-			for (int i = 0; i < m_NumVectorRefs; i++)
+			for (std::int32_t i = 0; i < m_NumVectorRefs; i++)
 			{
-				*m_VectorRefTargets[i] = m_VectorRefSources[i];
+				m_VectorRefTargets[i][0].Float = m_VectorRefSources[i].x;
+				m_VectorRefTargets[i][1].Float = m_VectorRefSources[i].y;
+				m_VectorRefTargets[i][2].Float = m_VectorRefSources[i].z;
 			}
 			m_NumVectorRefs = 0;
 		}
 
-		rage::vector3& GetSourceVector(int index)
-		{
-			return m_VectorRefSources[index];
-		}
-
 	protected:
-		void* m_ReturnValue;
+		scrValue* m_ReturnValue;
 		std::uint32_t m_ArgCount;
-		void* m_Args;
+		scrValue* m_Args;
 		std::int32_t m_NumVectorRefs;
-		rage::scrVector* m_VectorRefTargets[4];
-		rage::vector3 m_VectorRefSources[4];
+		scrValue* m_VectorRefTargets[4];
+		Vector3 m_VectorRefSources[4];
 	};
 	static_assert(sizeof(scrNativeCallContext) == 0x80);
 
 	using scrNativeHash = std::uint64_t;
-	using scrNativePair = std::pair<scrNativeHash, scrNativeHash>;
 	using scrNativeHandler = void (*)(scrNativeCallContext*);
 }

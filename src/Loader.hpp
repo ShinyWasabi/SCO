@@ -2,6 +2,6 @@
 
 namespace SCOL::Loader
 {
-	void LoadAllScripts();
-	void ReloadAllScripts();
+	void LoadScripts();
+	void ReloadScripts();
 }

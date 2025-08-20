@@ -2,16 +2,25 @@
 
 namespace rage
 {
+	union scrValue;
+
 	class scrThread
 	{
 	public:
 		enum class State
 		{
-			IDLE,
 			RUNNING,
+			IDLE,
 			KILLED,
-			PAUSED,
-			UNK4
+			PAUSED
+		};
+
+		enum class Priority
+		{
+			HIGHEST,
+			NORMAL,
+			LOWEST,
+			MANUAL_UPDATE = 100
 		};
 
 		class Context
@@ -26,25 +35,29 @@ namespace rage
 			float m_TimerA;
 			float m_TimerB;
 			float m_WaitTimer;
-			char m_padding1[0x2C];
+			char m_Pad1[0x2C];
 			std::uint32_t m_StackSize;
-			char m_Pad[0x54];
+			std::uint32_t m_CatchProgramCounter;
+			std::uint32_t m_CatchFramePointer;
+			std::uint32_t m_CatchStackPointer;
+			Priority m_Priority;
+			std::uint32_t m_StackFrameCount;
+			std::uint32_t m_StackFrames[16];
 		};
 		static_assert(sizeof(Context) == 0xB0);
 
-
 		virtual ~scrThread() = default;
-		virtual void Reset(std::uint64_t script_hash, void* args, std::uint32_t arg_count) = 0;
+		virtual void Reset(std::uint64_t scriptHash, void* args, std::uint32_t argCount) = 0;
 		virtual State RunImpl() = 0;
 		virtual State Run() = 0;
 		virtual void Kill() = 0;
 		virtual void GetInfo(void* info) = 0;
 
 		Context m_Context;
-		void* m_Stack;
-		char m_Pad[0x4];
-		std::uint32_t m_ParameterSize;
-		std::uint32_t m_ParameterLoc;
+		rage::scrValue* m_Stack;
+		char m_Pad1[0x4];
+		std::uint32_t m_ArgSize;
+		std::uint32_t m_ArgLoc;
 		char m_Pad2[0x4];
 		char m_ErrorMessage[128];
 		std::uint32_t m_ScriptHash;
