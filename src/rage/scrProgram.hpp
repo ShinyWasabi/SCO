@@ -1,10 +1,9 @@
 #pragma once
 #include "pgBase.hpp"
+#include "scrValue.hpp"
 
 namespace rage
 {
-	union scrValue;
-
 	class scrProgram : public pgBase
 	{
 	public:
@@ -19,7 +18,7 @@ namespace rage
 		scrValue** m_Globals;
 		std::uint64_t* m_Natives;
 		std::uint32_t m_ProcCount;
-		char pad_004C[4];
+		char m_Pad1[0x04];
 		const char** m_ProcNames;
 		std::uint32_t m_NameHash;
 		std::uint32_t m_RefCount;
@@ -138,6 +137,8 @@ namespace rage
 
 			return nullptr;
 		}
+
+		static scrProgram* FindScriptProgram(std::uint32_t hash);
 	};
 	static_assert(sizeof(scrProgram) == 0x80);
 }

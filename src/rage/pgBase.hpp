@@ -88,4 +88,5 @@ namespace rage
 	private:
 		std::uint32_t m_MapSize;
 	};
+	static_assert(sizeof(pgBase) == 0x10);
 }

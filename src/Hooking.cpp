@@ -47,11 +47,19 @@ namespace SCOL
                 success = false;
                 continue;
             }
+            else
+            {
+                LOGF(INFO, "Created hook for {}.", hook.m_Name);
+            }
 
             if (auto result = MH_EnableHook(hook.m_Target); result != MH_OK)
             {
                 LOGF(FATAL, "Failed to enable hook for {} ({}).", hook.m_Name, MH_StatusToString(result));
                 success = false;
+            }
+            else
+            {
+                LOGF(INFO, "Enabled hook for {}.", hook.m_Name);
             }
         }
 

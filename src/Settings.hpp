@@ -16,6 +16,7 @@ namespace SCOL
 			std::vector<std::uint64_t> Args;
 			std::uint32_t ArgCount = 0;
 			std::uint32_t StackSize = 1424;
+			std::uint32_t CleanupFunction = 0;
 		};
 
 		static void Init(const std::string& file)

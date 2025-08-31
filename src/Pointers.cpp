@@ -41,7 +41,7 @@ namespace SCOL
         });
 
         scanner.Add("ScriptGlobals", "48 8B 8E B8 00 00 00 48 8D 15 ? ? ? ? 49 89 D8", [this](Memory addr) {
-            ScriptGlobals = addr.Add(7).Add(3).Rip().As<scrValue**>();
+            ScriptGlobals = addr.Add(7).Add(3).Rip().As<rage::scrValue**>();
         });
 
         scanner.Add("LoadingScreenState", "8B 0D ? ? ? ? 83 C1 F7", [this](Memory addr) {
@@ -50,6 +50,14 @@ namespace SCOL
 
         scanner.Add("sysVirtualFree", "E8 ? ? ? ? 4A C7 04 3B 00 00 00 00", [this](Memory addr) {
             sysVirtualFree = addr.Add(1).Rip().As<Functions::sysVirtualFree>();
+        });
+
+        scanner.Add("ScriptPrograms", "48 C7 84 C8 D8 00 00 00 00 00 00 00", [this](Memory addr) {
+            ScriptPrograms = addr.Add(0x13).Add(3).Rip().Add(0xD8).As<rage::scrProgram**>();
+        });
+
+        scanner.Add("RunScriptThread", "49 63 41 1C", [this](Memory addr) {
+            RunScriptThread = addr.Sub(0x24).As<Functions::RunScriptThread>();
         });
 
         return scanner.Scan();

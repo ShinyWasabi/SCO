@@ -4,7 +4,7 @@
 
 namespace rage
 {
-	rage::scrThread* scrThread::FindScriptThread(std::uint32_t hash)
+	scrThread* scrThread::FindScriptThread(std::uint32_t hash)
 	{
 		for (auto& thread : *SCOL::g_Pointers.ScriptThreads)
 		{
@@ -17,7 +17,7 @@ namespace rage
 		return nullptr;
 	}
 
-	rage::scrThread* scrThread::FindScriptThreadById(std::uint32_t id)
+	scrThread* scrThread::FindScriptThreadById(std::uint32_t id)
 	{
 		for (auto& thread : *SCOL::g_Pointers.ScriptThreads)
 		{

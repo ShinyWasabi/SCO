@@ -25,8 +25,11 @@ If you want to load YSC scripts, you need to convert them to SCO (without the RS
 Args=0
 ArgCount=0
 StackSize=1424
+CleanupFunction=0
 ```
 You can edit these values as needed for your script. Use the `0,1,2,3` format to pass arguments.
+
+For `CleanupFunction`, you can pass the address of the function that you want to be called whenever scripts are reloaded. Note that it must not take any arguments.
 
 ## Natives
 SCOL registers additional native commands that can be used in your scripts. See the documentation [here](https://github.com/ShinyWasabi/SCOL/blob/main/NATIVES.md).

@@ -91,6 +91,12 @@ namespace SCOL
 			dirty = true;
 		}
 
+		if (!ini.GetValue(name.c_str(), "CleanupFunction"))
+		{
+			ini.SetLongValue(name.c_str(), "CleanupFunction", 0);
+			dirty = true;
+		}
+
 		if (dirty)
 			ini.SaveFile(m_FileName.c_str());
 
@@ -98,6 +104,7 @@ namespace SCOL
 		data.Args = ParseArgs(ini.GetValue(name.c_str(), "Args", "0"));
 		data.ArgCount = ini.GetLongValue(name.c_str(), "ArgCount", 0);
 		data.StackSize = ini.GetLongValue(name.c_str(), "StackSize", 1424);
+		data.CleanupFunction = ini.GetLongValue(name.c_str(), "CleanupFunction", 0);
 
 		return data;
 	}

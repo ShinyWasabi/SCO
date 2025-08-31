@@ -60,5 +60,5 @@ namespace rage
 		std::uint16_t m_Size;
 		std::uint16_t m_Capacity;
 	};
-	static_assert(sizeof(rage::atArray<std::uint32_t>) == 0x10);
+	static_assert(sizeof(atArray<std::uint32_t>) == 0x10);
 }

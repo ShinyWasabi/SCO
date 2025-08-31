@@ -1,7 +1,7 @@
 ﻿{
     "configurations": [
         {
-            "name": "x64-Release-Clang",
+            "name": "Release",
             "generator": "Ninja",
             "configurationType": "RelWithDebInfo",
             "buildRoot": "${projectDir}\\out\\build\\${name}",
