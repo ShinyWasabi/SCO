@@ -51,7 +51,6 @@ namespace rage
 			m_NumVectorRefs = 0;
 		}
 
-	protected:
 		scrValue* m_ReturnValue;
 		std::uint32_t m_ArgCount;
 		scrValue* m_Args;

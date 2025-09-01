@@ -6,11 +6,25 @@
 
 namespace SCOL::Natives
 {
+	static std::unordered_map<joaat_t, std::ofstream> scriptLogs;
+
 	static constexpr rage::scrNativeHash WRITE_MEMORY = 0xEEE74A05DE4C2A07;
 	static constexpr rage::scrNativeHash READ_MEMORY = 0x1E9F7F45D0E77AAC;
 	static constexpr rage::scrNativeHash SET_CURRENT_SCRIPT_THREAD = 0x7AFACDB81809E2C1;
 	static constexpr rage::scrNativeHash WRITE_SCRIPT_STATIC = 0xBB3346E0994B7EA5;
 	static constexpr rage::scrNativeHash READ_SCRIPT_STATIC = 0x8725A6C8DE144DBC;
+	static constexpr rage::scrNativeHash LOG_TO_FILE = 0x7F41C15A89FDEE9F;
+
+	static void CleanupScriptLog(joaat_t scriptHash)
+	{
+		auto it = scriptLogs.find(scriptHash);
+		if (it != scriptLogs.end())
+		{
+			it->second.close();
+			scriptLogs.erase(it);
+			LOGF(INFO, "Closed log file for script with hash 0x{:X}.", scriptHash);
+		}
+	}
 
 	static void NativeCommandWriteMemory(rage::scrNativeCallContext* ctx)
 	{
@@ -117,6 +131,51 @@ namespace SCOL::Natives
 		ctx->SetReturnValue(retVal);
 	}
 
+	static void NativeCommandLogToFile(rage::scrNativeCallContext* ctx)
+	{
+		auto hash = rage::tlsContext::Get()->m_CurrentScriptThread->m_ScriptHash;
+		auto name = rage::tlsContext::Get()->m_CurrentScriptThread->m_ScriptName;
+
+		auto it = scriptLogs.find(hash);
+		if (it == scriptLogs.end())
+		{
+			auto path = std::filesystem::path(g_Variables.ScriptsFolder) / (std::string(name) + ".log");
+			it = scriptLogs.emplace(hash, std::ofstream{path, std::ios::out | std::ios::trunc}).first;
+		}
+
+		auto& logFile = it->second;
+
+		auto argCount = ctx->m_ArgCount - 1;
+		auto args = ctx->m_Args + 1;
+		auto typeMask = args[-1].Int;
+
+		while (argCount > 0)
+		{
+			switch (typeMask & 3)
+			{
+			case 0:
+				logFile << args->Int;
+				break;
+			case 1:
+				logFile << args->Float;
+				break;
+			case 2:
+				logFile << args->String;
+				break;
+			case 3:
+				logFile << "<<" << args->Reference[0].Float << ", " << args->Reference[1].Float << ", " << args->Reference[2].Float << ">>";
+				break;
+			}
+
+			++args;
+			typeMask >>= 2;
+			--argCount;
+		}
+
+		logFile << std::endl;
+		logFile.flush();
+	}
+
 	void RegisterNatives()
 	{
 		static auto RegisterNative = [](rage::scrNativeHash hash, rage::scrNativeHandler handler) {
@@ -129,5 +188,6 @@ namespace SCOL::Natives
 		RegisterNative(SET_CURRENT_SCRIPT_THREAD, NativeCommandSetCurrentScriptThread);
 		RegisterNative(WRITE_SCRIPT_STATIC, NativeCommandWriteScriptStatic);
 		RegisterNative(READ_SCRIPT_STATIC, NativeCommandReadScriptStatic);
+		RegisterNative(LOG_TO_FILE, NativeCommandLogToFile);
 	}
 }

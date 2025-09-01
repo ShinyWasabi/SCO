@@ -79,3 +79,22 @@ Reads a script static at given index.
 ```
 INT eventCooldown = READ_SCRIPT_STATIC(HASH("freemode"), 16019 + (1 + (0 * 12)) + 6)
 ```
+
+### `NATIVE PROC LOG_TO_FILE(VARARGS) = "0x7F41C15A89FDEE9F"`
+
+Writes the provided arguments to a log file located in the script’s folder. Each script maintains its own log file, which is automatically truncated when the script is reloaded. Supports variadic arguments of types `INT`, `FLOAT`, `STRING/TEXT_LABEL_*`, and `VECTOR`.
+
+- **Parameters:**
+  - `(VARARGS)`: A variable number of arguments to print.
+  
+**Example Usage:**
+```
+INT iInt = 1578463
+FLOAT fFloat = 789.123
+STRING sString = "String"
+TEXT_LABEL_63 tlLabel = "("
+tlLabel += 121
+tlLabel += ")"
+VECTOR vVector = <<1215.123, 8792.3, 478.2342>>
+LOG_TO_FILE("Hello from script ", GET_THIS_SCRIPT_NAME(), ". Int=", iInt, " Float=", fFloat, " String=", sString, " Label=", tlLabel, " Vector=", vVector)
+```

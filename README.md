@@ -11,7 +11,7 @@ An example script to test can be found [here](https://github.com/ShinyWasabi/SCO
 If you want to load YSC scripts, you need to convert them to SCO (without the RSC7 header) using [YSC2SCO.exe](https://github.com/ShinyWasabi/SCOL/raw/main/YSC2SCO.exe). I won't provide the source code for this program due to reasons.
 
 ## Installation
-- Get `SCOL.asi` from `.\out\build\x64-Release-Clang` after building the project.
+- Get `SCOL.asi` from `.\out\build\Release` after building the project.
 - Download [xinput1_4.dll](https://github.com/ThirteenAG/Ultimate-ASI-Loader/releases/download/x64-latest/xinput1_4-x64.zip).
 - Place both files in the game directory where `GTA5_Enhanced.exe` is located.
 - Launch the game. Make sure BattlEye is disabled.

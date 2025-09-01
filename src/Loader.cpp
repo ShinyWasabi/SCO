@@ -1,5 +1,6 @@
 #include "Loader.hpp"
 #include "Pointers.hpp"
+#include "Natives.hpp"
 #include "ScriptFunction.hpp"
 #include "gta/GtaThread.hpp"
 
@@ -31,6 +32,8 @@ namespace SCOL::Loader
 				if (auto thread = reinterpret_cast<GtaThread*>(rage::scrThread::FindScriptThreadById(id)))
 				{
 					g_Pointers.RegisterScriptHandler(g_Pointers.ScriptHandlerMgrPtr, thread);
+
+					Natives::CleanupScriptLog(thread->m_ScriptHash);
 
 					scriptThreadIds.push_back(id);
 					LOGF(INFO, "Started new thread with ID {}.", id);
