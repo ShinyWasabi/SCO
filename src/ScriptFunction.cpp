@@ -14,6 +14,12 @@ namespace SCOL
 		if (!thread || !program || !pc)
 			return;
 
+		if (auto byte = program->GetCode(pc); !byte || *byte != 0x2D) // This will fail if the PC ends up pointing to some opcode's operand whose value is 0x2D, but whatever.
+		{
+			LOGF(WARNING, "Attempted to execute a script function from an invalid address.");
+			return;
+		}
+
 		auto tlsCtx = rage::tlsContext::Get();
 		auto stack = thread->m_Stack;
 		auto ogThread = tlsCtx->m_CurrentScriptThread;
