@@ -1,12 +1,12 @@
 # SCOL
-Allows you to load RAGE scripts (`.sco` files) for Grand Theft Auto V Enhanced. Strictly for educational purposes.
+Allows you to load RAGE scripts (`.sco` files) for Grand Theft Auto V Enhanced. It also exposes new native commands that extend the capabilities of RAGE Scripting Language. See the documentation [here](https://github.com/ShinyWasabi/SCOL/blob/main/NATIVES.md).
 
 ## How It Works
 Although the SCO format is never used in GTA V, the game engine still has the support for loading them. However, scripts compiled for other RAGE titles are not directly compatible due to different SCO header and incompatible natives and globals.
 
 SCOL works by creating a script thread using the unused SCO loader. This function loads a `.sco` file from a specified path on disk and creates a script program and thread for it automatically.
 
-An example script to test can be found [here](https://github.com/ShinyWasabi/SCOL/raw/main/hello_world.sco).
+An example script to test is available [here](https://github.com/ShinyWasabi/SCOL/raw/main/hello_world.sco), and a full singleplayer mod menu with source code can be found [here](https://github.com/ShinyWasabi/RageMenu.git).
 
 If you want to load YSC scripts, you need to convert them to SCO (without the RSC7 header) using [YSC2SCO.exe](https://github.com/ShinyWasabi/SCOL/raw/main/YSC2SCO.exe). I won't provide the source code for this program due to reasons.
 
@@ -27,9 +27,4 @@ ArgCount=0
 StackSize=1424
 CleanupFunction=0
 ```
-You can edit these values as needed for your script. Use the `0,1,2,3` format to pass arguments.
-
-For `CleanupFunction`, you can pass the address of the function that you want to be called whenever scripts are reloaded. Note that it must not take any arguments.
-
-## Natives
-SCOL registers additional native commands that can be used in your scripts. See the documentation [here](https://github.com/ShinyWasabi/SCOL/blob/main/NATIVES.md).
+You can edit these values as needed for your script. Use the `0,1,2,3` format to pass arguments. For `CleanupFunction`, you can pass the address of the function that you want to be called whenever scripts are reloaded. Note that it must not take any arguments.
