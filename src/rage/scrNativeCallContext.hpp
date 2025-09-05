@@ -1,6 +1,6 @@
 #pragma once
 #include "scrValue.hpp"
-#include "Vector3.hpp"
+#include "scrVector.hpp"
 
 namespace rage
 {
@@ -19,7 +19,7 @@ namespace rage
 		std::uint32_t m_ArgCount;
 		scrValue* m_Args;
 		std::int32_t m_NumVectorRefs;
-		scrValue* m_VectorRefTargets[4];
+		scrVector* m_VectorRefTargets[4];
 		Vector3 m_VectorRefSources[4];
 	};
 	static_assert(sizeof(scrNativeCallContext) == 0x80);
